@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
+import { getToken } from 'next-auth/jwt';
 
 const locales = ['uk', 'en'] as const;
 type Locale = (typeof locales)[number];
@@ -33,18 +33,10 @@ function getPathnameWithoutLocale(pathname: string): string {
 }
 
 async function getSessionRole(req: NextRequest): Promise<string | null> {
-  const secret = process.env.NEXTAUTH_SECRET;
-  if (!secret) return null;
-  const token =
-    req.cookies.get('next-auth.session-token')?.value ??
-    req.cookies.get('__Secure-next-auth.session-token')?.value;
+  // getToken() correctly decrypts NextAuth v4 JWE tokens (unlike jwtVerify which only handles JWS)
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   if (!token) return null;
-  try {
-    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
-    return (payload.role as string) ?? null;
-  } catch {
-    return null;
-  }
+  return (token.role as string) ?? null;
 }
 
 export default async function middleware(req: NextRequest) {
