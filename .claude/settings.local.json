@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@14 . --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(npx create-next-app@14 audiobookhub-tmp --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(Get-ChildItem)",
+      "Bash(Select-Object Name)",
+      "Bash(cp -r audiobookhub-tmp/app .)",
+      "Bash(cp audiobookhub-tmp/package.json .)",
+      "Bash(cp audiobookhub-tmp/package-lock.json .)",
+      "Bash(cp audiobookhub-tmp/tsconfig.json .)",
+      "Bash(cp audiobookhub-tmp/next.config.mjs .)",
+      "Bash(cd \"d:\\\\Digital_products\\\\AudioBookHub\" && cp -r audiobookhub-tmp/node_modules . && echo \"Done copying node_modules\")",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npx prisma *)",
+      "Bash(npm run *)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}

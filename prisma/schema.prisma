@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+}
+
+model Audiobook {
+  id               String   @id @default(cuid())
+  title            String
+  author           String
+  imageUrl         String
+  youtubeId        String
+  descriptionShort String   @db.Text
+  descriptionLong  String   @db.Text
+  duration         String
+  genre            String
+  language         String
+  year             Int
+  isPublished      Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
