@@ -8,11 +8,11 @@ import { authOptions } from '@/lib/auth';
 import { Providers } from '@/components/Providers';
 import '../globals.css';
 
-// Rubik: geometric + rounded, Cyrillic support — closest free match to Intro
 const rubik = Rubik({
   subsets: ['latin', 'cyrillic'],
   weight: ['300', '400', '500', '600', '700', '800'],
   variable: '--font-rubik',
+  display: 'swap',
 });
 
 const locales = ['uk', 'en'];
@@ -35,8 +35,8 @@ export default async function LocaleLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={rubik.className}>
+    <html lang={locale} className={rubik.variable} suppressHydrationWarning>
+      <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers session={session}>
             {children}
