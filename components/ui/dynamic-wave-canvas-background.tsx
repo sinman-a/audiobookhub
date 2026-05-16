@@ -14,7 +14,8 @@ const HeroWave = () => {
     const SCALE = 3;
     let width = 0;
     let height = 0;
-    let data: Uint8ClampedArray | null = null;
+    let imageData: ImageData;
+    let data: Uint8ClampedArray;
     let animId: number;
 
     const resizeCanvas = () => {
@@ -22,7 +23,8 @@ const HeroWave = () => {
       height = Math.max(1, Math.floor(window.innerHeight / SCALE));
       canvas.width = width;
       canvas.height = height;
-      data = new Uint8ClampedArray(width * height * 4);
+      imageData = ctx.createImageData(width, height);
+      data = imageData.data;
     };
 
     window.addEventListener('resize', resizeCanvas);
@@ -54,7 +56,6 @@ const HeroWave = () => {
     };
 
     const render = () => {
-      if (!data) { animId = requestAnimationFrame(render); return; }
 
       const time = (Date.now() - startTime) * 0.001;
 
@@ -91,7 +92,7 @@ const HeroWave = () => {
         }
       }
 
-      ctx.putImageData(new ImageData(data, width, height), 0, 0);
+      ctx.putImageData(imageData, 0, 0);
       animId = requestAnimationFrame(render);
     };
 
