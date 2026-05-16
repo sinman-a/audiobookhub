@@ -1,22 +1,18 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
 export function LanguageSwitcher() {
   const locale = useLocale();
-  const router = useRouter();
   const pathname = usePathname();
 
   const switchLocale = (newLocale: string) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('locale', newLocale);
-    }
-    // Replace current locale prefix in path
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
     const segments = pathname.split('/');
     segments[1] = newLocale;
-    router.push(segments.join('/'));
+    window.location.href = segments.join('/') || `/${newLocale}`;
   };
 
   return (

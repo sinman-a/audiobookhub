@@ -36,7 +36,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={rubik.variable} suppressHydrationWarning>
-      <body>
+      <body suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers session={session}>
             {children}

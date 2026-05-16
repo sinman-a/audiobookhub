@@ -14,7 +14,7 @@ export function Providers({
 }) {
   return (
     <SessionProvider session={session}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
         {children}
         <Toaster richColors position="top-right" />
       </ThemeProvider>
