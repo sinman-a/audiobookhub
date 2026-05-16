@@ -57,7 +57,8 @@
     background-color: #04071a;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: #04071a;
+    color: hsl(var(--foreground));
     font-family: var(--font-rubik, system-ui, sans-serif);
   }
 }
