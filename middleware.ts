@@ -1,6 +1,6 @@
 import createMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { jwtVerify } from 'jose';
 
 const locales = ['uk', 'en'] as const;
 const defaultLocale = 'uk';
@@ -24,36 +24,59 @@ function getPathnameWithoutLocale(pathname: string): string {
   return pathname;
 }
 
+function getLocaleFromPathname(pathname: string): string {
+  for (const locale of locales) {
+    if (pathname.startsWith(`/${locale}`)) return locale;
+  }
+  return defaultLocale;
+}
+
+async function getSessionPayload(req: NextRequest) {
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) return null;
+
+  const token =
+    req.cookies.get('next-auth.session-token')?.value ??
+    req.cookies.get('__Secure-next-auth.session-token')?.value;
+
+  if (!token) return null;
+
+  try {
+    const { payload } = await jwtVerify(
+      token,
+      new TextEncoder().encode(secret)
+    );
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Skip API routes
-  if (pathname.startsWith('/api')) return NextResponse.next();
+  // Skip API and static assets
+  if (pathname.startsWith('/api') || pathname.startsWith('/_next')) {
+    return NextResponse.next();
+  }
 
   const pathWithoutLocale = getPathnameWithoutLocale(pathname);
+  const locale = getLocaleFromPathname(pathname);
 
   const isProtected = protectedPaths.some((p) => pathWithoutLocale.startsWith(p));
   const isAdminPath = adminPaths.some((p) => pathWithoutLocale.startsWith(p));
   const isAuthPath = authPaths.some((p) => pathWithoutLocale.startsWith(p));
 
   if (isProtected || isAdminPath) {
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
+    const payload = await getSessionPayload(req);
 
-    if (!token) {
-      // Extract locale from pathname
-      const locale =
-        locales.find((l) => pathname.startsWith(`/${l}`)) ?? defaultLocale;
+    if (!payload) {
       const url = req.nextUrl.clone();
       url.pathname = `/${locale}/login`;
       return NextResponse.redirect(url);
     }
 
-    if (isAdminPath && token.role !== 'ADMIN') {
-      const locale =
-        locales.find((l) => pathname.startsWith(`/${l}`)) ?? defaultLocale;
+    if (isAdminPath && payload.role !== 'ADMIN') {
       const url = req.nextUrl.clone();
       url.pathname = `/${locale}/dashboard`;
       return NextResponse.redirect(url);
@@ -61,13 +84,8 @@ export default async function middleware(req: NextRequest) {
   }
 
   if (isAuthPath) {
-    const token = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-    if (token) {
-      const locale =
-        locales.find((l) => pathname.startsWith(`/${l}`)) ?? defaultLocale;
+    const payload = await getSessionPayload(req);
+    if (payload) {
       const url = req.nextUrl.clone();
       url.pathname = `/${locale}/dashboard`;
       return NextResponse.redirect(url);
@@ -78,5 +96,5 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next|_vercel|.*\\..*).*)'],
+  matcher: ['/((?!_next|_vercel|favicon.ico|.*\\..*).*)'],
 };
