@@ -8,31 +8,22 @@ const HeroWave = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const SCALE = 2;
-    let animId: number;
-
-    // Off-screen canvas for low-res render
-    const offscreen = document.createElement('canvas');
-    const offCtx = offscreen.getContext('2d');
-    if (!offCtx) return;
-
-    let width = 0;
-    let height = 0;
+    let width: number;
+    let height: number;
     let imageData: ImageData;
     let data: Uint8ClampedArray;
+    let animId: number;
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
       width = Math.floor(canvas.width / SCALE);
       height = Math.floor(canvas.height / SCALE);
-      offscreen.width = width;
-      offscreen.height = height;
-      imageData = offCtx.createImageData(width, height);
+      imageData = ctx.createImageData(width, height);
       data = imageData.data;
     };
 
@@ -49,16 +40,18 @@ const HeroWave = () => {
       COS_TABLE[i] = Math.cos(angle);
     }
 
+    const TWO_PI = Math.PI * 2;
+
     const fastSin = (x: number) => {
-      const index =
-        Math.floor(((x % (Math.PI * 2)) / (Math.PI * 2)) * 1024) & 1023;
-      return SIN_TABLE[Math.abs(index)];
+      let n = x % TWO_PI;
+      if (n < 0) n += TWO_PI;
+      return SIN_TABLE[Math.floor((n / TWO_PI) * 1024) & 1023];
     };
 
     const fastCos = (x: number) => {
-      const index =
-        Math.floor(((x % (Math.PI * 2)) / (Math.PI * 2)) * 1024) & 1023;
-      return COS_TABLE[Math.abs(index)];
+      let n = x % TWO_PI;
+      if (n < 0) n += TWO_PI;
+      return COS_TABLE[Math.floor((n / TWO_PI) * 1024) & 1023];
     };
 
     const render = () => {
@@ -87,17 +80,19 @@ const HeroWave = () => {
           const g = Math.max(0, Math.min(1, baseVal + blueAccent * 0.6)) * intensity;
           const b = Math.max(0, Math.min(1, baseVal + blueAccent * 1.2 + purpleAccent * 0.4)) * intensity;
 
-          const idx = (y * width + x) * 4;
-          data[idx] = r * 255;
-          data[idx + 1] = g * 255;
-          data[idx + 2] = b * 255;
-          data[idx + 3] = 255;
+          const index = (y * width + x) * 4;
+          data[index] = r * 255;
+          data[index + 1] = g * 255;
+          data[index + 2] = b * 255;
+          data[index + 3] = 255;
         }
       }
 
-      offCtx.putImageData(imageData, 0, 0);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(offscreen, 0, 0, width, height, 0, 0, canvas.width, canvas.height);
+      ctx.putImageData(imageData, 0, 0);
+      if (SCALE > 1) {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(canvas, 0, 0, width, height, 0, 0, canvas.width, canvas.height);
+      }
 
       animId = requestAnimationFrame(render);
     };
@@ -110,7 +105,7 @@ const HeroWave = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />;
+  return <canvas ref={canvasRef} className="fixed inset-0 w-full h-full" style={{ zIndex: 0 }} />;
 };
 
 export default HeroWave;

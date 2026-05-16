@@ -46,17 +46,17 @@ export default function LoginPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       <HeroWave />
-      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+      <div className="fixed top-4 right-4 flex items-center gap-2 z-10">
         <LanguageSwitcher />
         <ThemeToggle />
       </div>
-      <Card className="relative z-10 w-full max-w-md mx-4 bg-background/90 backdrop-blur-sm">
+      <Card className="relative z-10 w-full max-w-md mx-4 bg-black/60 backdrop-blur-md border-white/10 text-white">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center">
             <BookHeadphones className="h-10 w-10 text-primary" />
           </div>
           <CardTitle className="text-2xl">AudioBook Hub</CardTitle>
-          <p className="text-sm text-muted-foreground">{t('welcome')}</p>
+          <p className="text-sm text-white/70">{t('welcome')}</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -86,7 +86,7 @@ export default function LoginPage() {
               {loading ? t('loading') : t('login')}
             </Button>
           </form>
-          <p className="text-center text-sm text-muted-foreground mt-4">
+          <p className="text-center text-sm text-white/60 mt-4">
             <Link href={`/${locale}/register`} className="underline hover:text-foreground">
               {t('register')}
             </Link>
