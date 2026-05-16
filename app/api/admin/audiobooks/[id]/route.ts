@@ -7,14 +7,14 @@ import { extractYoutubeId } from '@/lib/youtube';
 
 const updateSchema = z.object({
   title: z.string().min(1).optional(),
-  author: z.string().min(1).optional(),
-  imageUrl: z.string().optional(),
-  youtubeUrl: z.string().optional(),
-  descriptionShort: z.string().min(1).optional(),
-  descriptionLong: z.string().min(1).optional(),
-  duration: z.string().optional(),
-  genre: z.string().optional(),
-  language: z.string().optional(),
+  author: z.string().optional().or(z.literal('')),
+  imageUrl: z.string().optional().or(z.literal('')),
+  youtubeUrl: z.string().optional().or(z.literal('')),
+  descriptionShort: z.string().optional().or(z.literal('')),
+  descriptionLong: z.string().optional().or(z.literal('')),
+  duration: z.string().optional().or(z.literal('')),
+  genre: z.string().optional().or(z.literal('')),
+  language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100).optional(),
   isPublished: z.boolean().optional(),
 });
