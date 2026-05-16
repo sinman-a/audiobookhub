@@ -93,7 +93,10 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // Pass locale to next-intl via request header
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-next-intl-locale', locale);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {

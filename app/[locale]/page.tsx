@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import {
-  BookHeadphones,
   Headphones,
   Library,
   Play,
@@ -129,7 +129,7 @@ export default function LandingPage() {
       {/* ── Header ───────────────────────────────────────── */}
       <header className="fixed top-0 inset-x-0 z-20 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-white/5">
         <div className="flex items-center gap-2.5">
-          <BookHeadphones className="h-6 w-6 text-blue-400" />
+          <Image src="/logo.png" alt="AudioBook Hub" width={36} height={36} className="object-contain" />
           <span className="text-lg font-bold tracking-tight">AudioBook Hub</span>
         </div>
         <div className="flex items-center gap-2">
