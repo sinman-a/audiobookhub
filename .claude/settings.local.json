@@ -52,7 +52,8 @@
       "Bash(Remove-Item -Force \"d:\\\\Digital_products\\\\AudioBookHub\\\\app\\\\api\\\\seed\" -ErrorAction SilentlyContinue)",
       "Bash(Write-Output \"done\")",
       "Bash(gh auth *)",
-      "Bash(gh repo *)"
+      "Bash(gh repo *)",
+      "Bash(git remote *)"
     ]
   }
 }

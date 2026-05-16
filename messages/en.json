@@ -48,17 +48,32 @@
   "loading": "Loading...",
   "dark_mode": "Dark mode",
   "light_mode": "Light mode",
-  "welcome": "Welcome to AudioBook Hub",
+  "welcome": "Welcome back",
   "subtitle": "Listen to the best audiobooks",
+  "no_account": "No account?",
+  "have_account": "Already have an account?",
+
   "landing_badge": "Your personal audiobook library",
-  "landing_title": "Listen to books that",
-  "landing_title_accent": "change your life",
-  "landing_subtitle": "Thousands of audiobooks at your fingertips. Listen anywhere, anytime — at work, on the go, at home.",
-  "landing_cta_primary": "Get Started Free",
-  "landing_cta_secondary": "Sign In to Catalog",
+  "landing_title": "Listen to Books You Love.",
+  "landing_title_accent": "Anywhere.",
+  "landing_subtitle": "AudioBook Hub is your personal audiobook library powered by YouTube. Sign up in 10 seconds and unlock hundreds of hours of narrated stories in Ukrainian and English.",
+  "landing_cta_primary": "Create Free Account",
+  "landing_cta_secondary": "Sign In",
+  "landing_no_cc": "No credit card required",
+
+  "why_us_title": "Why AudioBook Hub?",
+  "why_1_title": "Everything in One Place",
+  "why_1_desc": "Stop searching YouTube. We've curated the best audiobooks with covers, descriptions, and a clean catalog.",
+  "why_2_title": "Watch & Listen",
+  "why_2_desc": "Built-in YouTube player. No mid-chapter ads, just you and the story.",
+  "why_3_title": "Ukrainian & English",
+  "why_3_desc": "Switch the interface language in one click. Our catalog is always growing in both languages.",
+
+  "final_cta_title": "Ready for your next story?",
+  "final_cta_desc": "Create an account and get instant access to the full library.",
+  "final_cta_btn": "Start Listening",
+
   "landing_feature_1": "🎧 High quality audio",
   "landing_feature_2": "🌙 Dark mode",
-  "landing_feature_3": "🌍 Ukrainian & English",
-  "no_account": "No account?",
-  "have_account": "Already have an account?"
+  "landing_feature_3": "🌍 Ukrainian & English"
 }
