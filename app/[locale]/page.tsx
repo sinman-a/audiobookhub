@@ -11,7 +11,7 @@ import {
   ArrowRight,
   Check,
 } from 'lucide-react';
-import HeroWave from '@/components/ui/dynamic-wave-canvas-background';
+import FlowFieldBackground from '@/components/ui/flow-field-background';
 import { AuthModal } from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -124,7 +124,7 @@ export default function LandingPage() {
 
   return (
     <div className="relative flex flex-col bg-[#04071a] text-white overflow-x-hidden">
-      <HeroWave />
+      <FlowFieldBackground color="#818cf8" trailOpacity={0.1} particleCount={600} speed={0.8} />
 
       {/* ── Header ───────────────────────────────────────── */}
       <header className="fixed top-0 inset-x-0 z-20 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-white/5">
