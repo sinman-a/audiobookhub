@@ -36,16 +36,17 @@ interface Props {
   book?: Audiobook | null;
 }
 
+// Only title and youtubeUrl are required — everything else is optional
 const formSchema = z.object({
   title: z.string().min(1),
-  author: z.string().min(1),
-  imageUrl: z.string().optional(),
+  author: z.string().optional().or(z.literal('')),
+  imageUrl: z.string().optional().or(z.literal('')),
   youtubeUrl: z.string().min(1),
-  descriptionShort: z.string().min(1),
-  descriptionLong: z.string().min(1),
-  duration: z.string().optional(),
-  genre: z.string().min(1),
-  language: z.string().min(1),
+  descriptionShort: z.string().optional().or(z.literal('')),
+  descriptionLong: z.string().optional().or(z.literal('')),
+  duration: z.string().optional().or(z.literal('')),
+  genre: z.string().optional().or(z.literal('')),
+  language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100),
   isPublished: z.boolean(),
 });
@@ -56,17 +57,18 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
   const t = useTranslations();
   const isEdit = !!book;
 
+  // Note: parent passes key={book?.id} so this state always initializes fresh
   const [form, setForm] = useState<FormData>({
-    title: book?.title || '',
-    author: book?.author || '',
-    imageUrl: book?.imageUrl || '',
+    title: book?.title ?? '',
+    author: book?.author ?? '',
+    imageUrl: book?.imageUrl ?? '',
     youtubeUrl: book ? `https://www.youtube.com/watch?v=${book.youtubeId}` : '',
-    descriptionShort: book?.descriptionShort || '',
-    descriptionLong: book?.descriptionLong || '',
-    duration: book?.duration || '',
-    genre: book?.genre || '',
-    language: book?.language || '',
-    year: book?.year || new Date().getFullYear(),
+    descriptionShort: book?.descriptionShort ?? '',
+    descriptionLong: book?.descriptionLong ?? '',
+    duration: book?.duration ?? '',
+    genre: book?.genre ?? '',
+    language: book?.language ?? '',
+    year: book?.year ?? new Date().getFullYear(),
     isPublished: book?.isPublished ?? false,
   });
 
@@ -98,9 +100,7 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
     setLoading(true);
 
     try {
-      const url = isEdit
-        ? `/api/admin/audiobooks/${book!.id}`
-        : '/api/admin/audiobooks';
+      const url = isEdit ? `/api/admin/audiobooks/${book!.id}` : '/api/admin/audiobooks';
       const method = isEdit ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -120,7 +120,6 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
 
       toast.success(isEdit ? t('book_updated') : t('book_added'));
       onSuccess();
-      onClose();
     } catch {
       toast.error('Error');
     } finally {
@@ -136,13 +135,13 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
         </DialogHeader>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label={t('title')} error={errors.title}>
+          <Field label={`${t('title')} *`} error={errors.title}>
             <Input value={form.title} onChange={(e) => set('title', e.target.value)} />
           </Field>
           <Field label={t('author')} error={errors.author}>
-            <Input value={form.author} onChange={(e) => set('author', e.target.value)} />
+            <Input value={form.author ?? ''} onChange={(e) => set('author', e.target.value)} />
           </Field>
-          <Field label={t('youtube_url')} error={errors.youtubeUrl} className="sm:col-span-2">
+          <Field label={`${t('youtube_url')} *`} error={errors.youtubeUrl} className="sm:col-span-2">
             <Input
               value={form.youtubeUrl}
               onChange={(e) => set('youtubeUrl', e.target.value)}
@@ -150,36 +149,43 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
             />
           </Field>
           <Field label={t('image_url')} error={errors.imageUrl} className="sm:col-span-2">
-            <Input value={form.imageUrl} onChange={(e) => set('imageUrl', e.target.value)} placeholder="https://..." />
+            <Input
+              value={form.imageUrl ?? ''}
+              onChange={(e) => set('imageUrl', e.target.value)}
+              placeholder="https://... (залишіть порожнім — використаємо YouTube thumbnail)"
+            />
           </Field>
           <Field label={t('short_description')} error={errors.descriptionShort} className="sm:col-span-2">
             <Textarea
-              value={form.descriptionShort}
+              value={form.descriptionShort ?? ''}
               onChange={(e) => set('descriptionShort', e.target.value)}
               rows={3}
             />
           </Field>
           <Field label={t('full_description')} error={errors.descriptionLong} className="sm:col-span-2">
             <Textarea
-              value={form.descriptionLong}
+              value={form.descriptionLong ?? ''}
               onChange={(e) => set('descriptionLong', e.target.value)}
               rows={5}
             />
           </Field>
           <Field label={t('genre')} error={errors.genre}>
-            <Select value={form.genre} onValueChange={(v) => set('genre', v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select value={form.genre ?? ''} onValueChange={(v) => set('genre', v)}>
+              <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Fantasy">Fantasy / Фантастика</SelectItem>
                 <SelectItem value="Non-fiction">Non-fiction / Нон-фікшн</SelectItem>
                 <SelectItem value="Detective">Detective / Детектив</SelectItem>
                 <SelectItem value="Classic">Classic / Класика</SelectItem>
+                <SelectItem value="Romance">Romance / Романтика</SelectItem>
+                <SelectItem value="Biography">Biography / Біографія</SelectItem>
+                <SelectItem value="Other">Other / Інше</SelectItem>
               </SelectContent>
             </Select>
           </Field>
           <Field label={t('language')} error={errors.language}>
-            <Select value={form.language} onValueChange={(v) => set('language', v)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select value={form.language ?? ''} onValueChange={(v) => set('language', v)}>
+              <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="UA">🇺🇦 UA</SelectItem>
                 <SelectItem value="EN">🇬🇧 EN</SelectItem>
@@ -188,7 +194,7 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
           </Field>
           <Field label={t('duration')} error={errors.duration}>
             <Input
-              value={form.duration}
+              value={form.duration ?? ''}
               onChange={(e) => set('duration', e.target.value)}
               placeholder="5:30:00"
             />
@@ -197,20 +203,27 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
             <Input
               type="number"
               value={form.year}
-              onChange={(e) => set('year', parseInt(e.target.value))}
+              onChange={(e) => set('year', parseInt(e.target.value) || new Date().getFullYear())}
               min={1900}
               max={2100}
             />
           </Field>
-          <div className="flex items-center gap-3 sm:col-span-2">
+
+          {/* Publish toggle — prominent placement */}
+          <div className="sm:col-span-2 flex items-center justify-between rounded-lg border p-3 bg-muted/30">
+            <div>
+              <p className="font-medium text-sm">{form.isPublished ? t('published') : t('draft')}</p>
+              <p className="text-xs text-muted-foreground">
+                {form.isPublished
+                  ? 'Книга видима у каталозі'
+                  : 'Книга прихована від користувачів'}
+              </p>
+            </div>
             <Switch
               checked={form.isPublished}
               onCheckedChange={(v) => set('isPublished', v)}
               id="isPublished"
             />
-            <Label htmlFor="isPublished">
-              {form.isPublished ? t('published') : t('draft')}
-            </Label>
           </div>
         </div>
 
@@ -239,7 +252,7 @@ function Field({
   className?: string;
 }) {
   return (
-    <div className={`space-y-1.5 ${className || ''}`}>
+    <div className={`space-y-1.5 ${className ?? ''}`}>
       <Label>{label}</Label>
       {children}
       {error && <p className="text-xs text-destructive">{error}</p>}

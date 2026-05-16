@@ -7,15 +7,15 @@ import { extractYoutubeId } from '@/lib/youtube';
 
 const bookSchema = z.object({
   title: z.string().min(1),
-  author: z.string().min(1),
-  imageUrl: z.string().url().optional().or(z.literal('')),
+  author: z.string().optional().or(z.literal('')),
+  imageUrl: z.string().optional().or(z.literal('')),
   youtubeUrl: z.string().min(1),
-  descriptionShort: z.string().min(1),
-  descriptionLong: z.string().min(1),
+  descriptionShort: z.string().optional().or(z.literal('')),
+  descriptionLong: z.string().optional().or(z.literal('')),
   duration: z.string().optional().or(z.literal('')),
-  genre: z.string().min(1),
-  language: z.string().min(1),
-  year: z.number().int().min(1900).max(2100),
+  genre: z.string().optional().or(z.literal('')),
+  language: z.string().optional().or(z.literal('')),
+  year: z.number().int().min(1900).max(2100).optional().default(new Date().getFullYear()),
   isPublished: z.boolean().default(false),
 });
 
@@ -47,15 +47,15 @@ export async function POST(req: NextRequest) {
     const book = await prisma.audiobook.create({
       data: {
         title: data.title,
-        author: data.author,
+        author: data.author || '',
         imageUrl: data.imageUrl || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`,
         youtubeId,
-        descriptionShort: data.descriptionShort,
-        descriptionLong: data.descriptionLong,
+        descriptionShort: data.descriptionShort || '',
+        descriptionLong: data.descriptionLong || '',
         duration: data.duration || '',
-        genre: data.genre,
-        language: data.language,
-        year: data.year,
+        genre: data.genre || '',
+        language: data.language || '',
+        year: data.year ?? new Date().getFullYear(),
         isPublished: data.isPublished,
       },
     });
