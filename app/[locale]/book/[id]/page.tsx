@@ -131,7 +131,7 @@ export default function BookPage({ params }: { params: { id: string; locale: str
             <iframe
               src={`https://www.youtube.com/embed/${book.youtubeId}`}
               title={book.title}
-              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               className="absolute inset-0 w-full h-full"
             />
