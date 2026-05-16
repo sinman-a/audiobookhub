@@ -36,22 +36,31 @@ export async function PUT(
     const body = await req.json();
     const data = updateSchema.parse(body);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const updateData: any = { ...data };
+    // Build update object with only valid Prisma Audiobook fields
+    const prismaData: Record<string, unknown> = {};
+
+    if (data.title !== undefined) prismaData.title = data.title;
+    if (data.author !== undefined) prismaData.author = data.author;
+    if (data.descriptionShort !== undefined) prismaData.descriptionShort = data.descriptionShort;
+    if (data.descriptionLong !== undefined) prismaData.descriptionLong = data.descriptionLong;
+    if (data.duration !== undefined) prismaData.duration = data.duration;
+    if (data.genre !== undefined) prismaData.genre = data.genre;
+    if (data.language !== undefined) prismaData.language = data.language;
+    if (data.year !== undefined) prismaData.year = data.year;
+    if (data.isPublished !== undefined) prismaData.isPublished = data.isPublished;
 
     if (data.youtubeUrl) {
       const youtubeId = extractYoutubeId(data.youtubeUrl);
       if (!youtubeId) return NextResponse.json({ error: 'invalid_youtube_url' }, { status: 400 });
-      updateData.youtubeId = youtubeId;
-      if (!data.imageUrl) {
-        updateData.imageUrl = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
-      }
-      delete updateData.youtubeUrl;
+      prismaData.youtubeId = youtubeId;
+      prismaData.imageUrl = data.imageUrl || `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+    } else if (data.imageUrl !== undefined) {
+      prismaData.imageUrl = data.imageUrl;
     }
 
     const book = await prisma.audiobook.update({
       where: { id: params.id },
-      data: updateData,
+      data: prismaData,
     });
 
     return NextResponse.json(book);
@@ -59,6 +68,7 @@ export async function PUT(
     if (err instanceof z.ZodError) {
       return NextResponse.json({ error: err.errors[0].message }, { status: 400 });
     }
+    console.error('[PUT audiobook]', err);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }

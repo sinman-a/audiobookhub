@@ -51,7 +51,7 @@ export function Header({ showAdminLink }: HeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => signOut({ callbackUrl: `/${locale}` })}
+            onClick={async () => { await signOut({ redirect: false }); window.location.href = `/${locale}`; }}
             title={t('logout')}
           >
             <LogOut className="h-5 w-5" />
