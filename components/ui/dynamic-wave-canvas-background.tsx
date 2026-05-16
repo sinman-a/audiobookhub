@@ -12,17 +12,19 @@ const HeroWave = () => {
     if (!ctx) return;
 
     const SCALE = 2;
-    let width: number;
-    let height: number;
+    let width = 0;
+    let height = 0;
     let imageData: ImageData;
     let data: Uint8ClampedArray;
     let animId: number;
 
+    // Set canvas PIXEL size to half-screen; CSS w-full/h-full upscales it visually.
+    // This avoids the undefined-behavior ctx.drawImage(canvas→itself) trick.
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      width = Math.floor(canvas.width / SCALE);
-      height = Math.floor(canvas.height / SCALE);
+      width = Math.max(1, Math.floor(window.innerWidth / SCALE));
+      height = Math.max(1, Math.floor(window.innerHeight / SCALE));
+      canvas.width = width;
+      canvas.height = height;
       imageData = ctx.createImageData(width, height);
       data = imageData.data;
     };
@@ -71,7 +73,7 @@ const HeroWave = () => {
           }
 
           const wave = (fastSin(a) + fastCos(d)) * 0.5;
-          const intensity = 0.3 + 0.4 * wave;
+          const intensity = Math.max(0.05, 0.3 + 0.4 * wave);
           const baseVal = 0.1 + 0.15 * fastCos(u_x + u_y + time * 0.3);
           const blueAccent = 0.2 * fastSin(a * 1.5 + time * 0.2);
           const purpleAccent = 0.15 * fastCos(d * 2 + time * 0.1);
@@ -80,20 +82,15 @@ const HeroWave = () => {
           const g = Math.max(0, Math.min(1, baseVal + blueAccent * 0.6)) * intensity;
           const b = Math.max(0, Math.min(1, baseVal + blueAccent * 1.2 + purpleAccent * 0.4)) * intensity;
 
-          const index = (y * width + x) * 4;
-          data[index] = r * 255;
-          data[index + 1] = g * 255;
-          data[index + 2] = b * 255;
-          data[index + 3] = 255;
+          const idx = (y * width + x) * 4;
+          data[idx] = r * 255;
+          data[idx + 1] = g * 255;
+          data[idx + 2] = b * 255;
+          data[idx + 3] = 255;
         }
       }
 
       ctx.putImageData(imageData, 0, 0);
-      if (SCALE > 1) {
-        ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(canvas, 0, 0, width, height, 0, 0, canvas.width, canvas.height);
-      }
-
       animId = requestAnimationFrame(render);
     };
 
@@ -105,7 +102,13 @@ const HeroWave = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 w-full h-full" style={{ zIndex: 0 }} />;
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 w-full h-full"
+      style={{ zIndex: -1 }}
+    />
+  );
 };
 
 export default HeroWave;

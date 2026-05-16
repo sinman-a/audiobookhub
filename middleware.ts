@@ -59,7 +59,7 @@ export default async function middleware(req: NextRequest) {
   if (!localeInPath) {
     const locale = detectLocale(req);
     const url = req.nextUrl.clone();
-    url.pathname = `/${locale}${pathname === '/' ? '/dashboard' : pathname}`;
+    url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
     return NextResponse.redirect(url);
   }
 

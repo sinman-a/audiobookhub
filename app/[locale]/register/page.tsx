@@ -63,11 +63,11 @@ export default function RegisterPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       <HeroWave />
-      <div className="fixed top-4 right-4 flex items-center gap-2 z-10">
+      <div className="absolute top-4 right-4 flex items-center gap-2">
         <LanguageSwitcher />
         <ThemeToggle />
       </div>
-      <Card className="relative z-10 w-full max-w-md mx-4 bg-black/60 backdrop-blur-md border-white/10 text-white">
+      <Card className="relative w-full max-w-md mx-4 bg-black/60 backdrop-blur-md border-white/10 text-white">
         <CardHeader className="text-center space-y-2">
           <div className="flex justify-center">
             <BookHeadphones className="h-10 w-10 text-primary" />

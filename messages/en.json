@@ -49,5 +49,14 @@
   "dark_mode": "Dark mode",
   "light_mode": "Light mode",
   "welcome": "Welcome to AudioBook Hub",
-  "subtitle": "Listen to the best audiobooks"
+  "subtitle": "Listen to the best audiobooks",
+  "landing_badge": "Your personal audiobook library",
+  "landing_title": "Listen to books that",
+  "landing_title_accent": "change your life",
+  "landing_subtitle": "Thousands of audiobooks at your fingertips. Listen anywhere, anytime — at work, on the go, at home.",
+  "landing_cta_primary": "Get Started Free",
+  "landing_cta_secondary": "Sign In to Catalog",
+  "landing_feature_1": "🎧 High quality audio",
+  "landing_feature_2": "🌙 Dark mode",
+  "landing_feature_3": "🌍 Ukrainian & English"
 }
