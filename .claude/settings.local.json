@@ -50,7 +50,9 @@
       "Bash(curl -s -X POST \"https://audiobookhub.vercel.app/api/seed\" -H \"x-seed-secret: de1c88873657801bf27a3e03bd4ac972ab0bd884102b74c53c4f80d26fcb584c\" -H \"Content-Type: application/json\")",
       "Bash(Remove-Item -Force \"d:\\\\Digital_products\\\\AudioBookHub\\\\app\\\\api\\\\seed\\\\route.ts\")",
       "Bash(Remove-Item -Force \"d:\\\\Digital_products\\\\AudioBookHub\\\\app\\\\api\\\\seed\" -ErrorAction SilentlyContinue)",
-      "Bash(Write-Output \"done\")"
+      "Bash(Write-Output \"done\")",
+      "Bash(gh auth *)",
+      "Bash(gh repo *)"
     ]
   }
 }

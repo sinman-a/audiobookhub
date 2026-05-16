@@ -58,5 +58,7 @@
   "landing_cta_secondary": "Увійти до каталогу",
   "landing_feature_1": "🎧 Висока якість звуку",
   "landing_feature_2": "🌙 Темна тема",
-  "landing_feature_3": "🌍 Українська та англійська"
+  "landing_feature_3": "🌍 Українська та англійська",
+  "no_account": "Немає акаунту?",
+  "have_account": "Вже є акаунт?"
 }

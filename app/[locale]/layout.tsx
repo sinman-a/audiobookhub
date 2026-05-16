@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Rubik } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -8,7 +8,12 @@ import { authOptions } from '@/lib/auth';
 import { Providers } from '@/components/Providers';
 import '../globals.css';
 
-const inter = Inter({ subsets: ['latin', 'cyrillic'] });
+// Rubik: geometric + rounded, Cyrillic support — closest free match to Intro
+const rubik = Rubik({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-rubik',
+});
 
 const locales = ['uk', 'en'];
 
@@ -31,7 +36,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={rubik.className}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers session={session}>
             {children}
