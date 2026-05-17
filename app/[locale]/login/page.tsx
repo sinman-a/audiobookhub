@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { BookHeadphones } from 'lucide-react';
-import HeroWave from '@/components/ui/dynamic-wave-canvas-background';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,7 +43,6 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
-      <HeroWave />
       <div className="absolute top-4 right-4 flex items-center gap-2">
         <LanguageSwitcher />
       </div>

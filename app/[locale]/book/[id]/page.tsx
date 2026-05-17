@@ -49,7 +49,7 @@ export default function BookPage({ params }: { params: { id: string; locale: str
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <Header showAdminLink={isAdmin} />
         <main className="container mx-auto px-4 py-8 max-w-4xl">
           <Skeleton className="h-10 w-32 mb-6" />
@@ -66,7 +66,7 @@ export default function BookPage({ params }: { params: { id: string; locale: str
 
   if (error || !book) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen">
         <Header showAdminLink={isAdmin} />
         <main className="container mx-auto px-4 py-8 text-center">
           <BookOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />

@@ -54,10 +54,11 @@
     @apply border-border;
   }
   html {
-    background-color: #04071a;
+    background-color: #020617; /* aurora fallback when JS/canvas not loaded */
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background: transparent;
     font-family: var(--font-rubik, system-ui, sans-serif);
   }
 }

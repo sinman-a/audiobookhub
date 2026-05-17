@@ -11,7 +11,6 @@ import {
   ArrowRight,
   Check,
 } from 'lucide-react';
-import HeroWave from '@/components/ui/dynamic-wave-canvas-background';
 import { AuthModal } from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
@@ -122,8 +121,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="relative flex flex-col bg-[#04071a] text-white overflow-x-hidden">
-      <HeroWave />
+    <div className="relative flex flex-col text-white overflow-x-hidden">
 
       {/* ── Header ───────────────────────────────────────── */}
       <header className="fixed top-0 inset-x-0 z-20 flex items-center justify-between px-6 py-4 backdrop-blur-md border-b border-white/5">

@@ -6,6 +6,7 @@ import { getMessages } from 'next-intl/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { Providers } from '@/components/Providers';
+import { AuroraBackground } from '@/components/ui/aurora-background';
 import '../globals.css';
 
 const rubik = Rubik({
@@ -46,6 +47,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} className={rubik.variable} suppressHydrationWarning>
       <body suppressHydrationWarning>
+        <AuroraBackground />
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Providers session={session}>
             {children}
