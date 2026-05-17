@@ -24,7 +24,7 @@ export function BookCard({ book }: { book: Audiobook }) {
 
   return (
     <Card className="overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow">
-      <div className="relative h-56 w-full bg-muted">
+      <div className="relative h-56 w-full bg-muted overflow-hidden">
         <Image
           src={book.imageUrl || '/placeholder.jpg'}
           alt={book.title}
