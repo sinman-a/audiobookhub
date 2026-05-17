@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useId } from 'react';
+import { useState, useId, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -31,6 +31,10 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
 
   const uid = useId();
   const [mode, setMode] = useState<Mode>(defaultMode);
+
+  useEffect(() => {
+    if (open) setMode(defaultMode);
+  }, [open, defaultMode]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
