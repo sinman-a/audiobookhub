@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Clock, BookOpen, Globe } from 'lucide-react';
 import { Header } from '@/components/Header';
+import { YoutubePlayer } from '@/components/YoutubePlayer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -80,7 +81,7 @@ export default function BookPage({ params }: { params: { id: string; locale: str
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <Header showAdminLink={isAdmin} />
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <Link href={`/${locale}/dashboard`}>
@@ -125,17 +126,15 @@ export default function BookPage({ params }: { params: { id: string; locale: str
           </div>
         </div>
 
-        {/* YouTube embed */}
-        <div className="relative w-full mb-8 rounded-xl overflow-hidden shadow-xl">
-          <div className="aspect-video">
-            <iframe
-              src={`https://www.youtube.com/embed/${book.youtubeId}`}
-              title={book.title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowFullScreen
-              className="absolute inset-0 w-full h-full"
-            />
-          </div>
+        {/* YouTube player with progress tracking */}
+        <div className="mb-8">
+          <YoutubePlayer
+            youtubeId={book.youtubeId}
+            bookId={book.id}
+            bookTitle={book.title}
+            bookAuthor={book.author}
+            imageUrl={book.imageUrl}
+          />
         </div>
 
         {/* Full description */}

@@ -75,5 +75,9 @@
 
   "landing_feature_1": "🎧 High quality audio",
   "landing_feature_2": "🌙 Dark mode",
-  "landing_feature_3": "🌍 Ukrainian & English"
+  "landing_feature_3": "🌍 Ukrainian & English",
+
+  "continue_listening": "Continue Listening",
+  "resume_from": "Saved position:",
+  "continue": "Continue"
 }

@@ -75,5 +75,9 @@
 
   "landing_feature_1": "🎧 Висока якість звуку",
   "landing_feature_2": "🌙 Темна тема",
-  "landing_feature_3": "🌍 Українська та англійська"
+  "landing_feature_3": "🌍 Українська та англійська",
+
+  "continue_listening": "Продовжити прослуховування",
+  "resume_from": "Збережена позиція:",
+  "continue": "Продовжити"
 }

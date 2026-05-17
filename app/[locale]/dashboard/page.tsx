@@ -7,6 +7,7 @@ import { BookOpen } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { BookCard } from '@/components/BookCard';
 import { BookCardSkeleton } from '@/components/BookCardSkeleton';
+import { ContinueListening } from '@/components/ContinueListening';
 
 interface Audiobook {
   id: string;
@@ -39,6 +40,7 @@ export default function DashboardPage() {
       <Header showAdminLink={isAdmin} />
       <main id="main-content" className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">{t('dashboard')}</h1>
+        <ContinueListening />
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
