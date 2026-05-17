@@ -21,7 +21,6 @@ interface Audiobook {
   language: string;
   year: number;
   isPublished: boolean;
-  category: 'BOOK' | 'MUSIC';
 }
 
 interface Props {
@@ -77,7 +76,6 @@ export function AdminBookTable({ books, onRefresh }: Props) {
               <th className="text-left p-3 font-medium">{t('title')}</th>
               <th className="text-left p-3 font-medium hidden md:table-cell">{t('author')}</th>
               <th className="text-left p-3 font-medium hidden sm:table-cell">{t('genre')}</th>
-              <th className="text-left p-3 font-medium hidden lg:table-cell">Тип</th>
               <th className="text-left p-3 font-medium">{t('status')}</th>
               <th className="text-right p-3 font-medium">{t('actions')}</th>
             </tr>
@@ -89,11 +87,6 @@ export function AdminBookTable({ books, onRefresh }: Props) {
                 <td className="p-3 text-muted-foreground hidden md:table-cell">{book.author}</td>
                 <td className="p-3 hidden sm:table-cell">
                   {book.genre && <Badge variant="outline">{book.genre}</Badge>}
-                </td>
-                <td className="p-3 hidden lg:table-cell">
-                  <Badge variant={book.category === 'MUSIC' ? 'default' : 'secondary'}>
-                    {book.category === 'MUSIC' ? '🎵 Music' : '📚 Book'}
-                  </Badge>
                 </td>
                 <td className="p-3">
                   <Badge variant={book.isPublished ? 'default' : 'secondary'}>

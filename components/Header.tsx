@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { signOut } from 'next-auth/react';
-import { LogOut, BookHeadphones, Music } from 'lucide-react';
+import { LogOut, BookHeadphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { InstallPWA } from './InstallPWA';
@@ -45,12 +45,6 @@ export function Header({ showAdminLink }: HeaderProps) {
         </Link>
 
         <nav className="flex items-center gap-2">
-          <Link href={`/${locale}/music`}>
-            <Button variant="ghost" size="sm" className="gap-1.5">
-              <Music className="h-4 w-4" />
-              <span className="hidden sm:inline">{t('music')}</span>
-            </Button>
-          </Link>
           {showAdminLink && (
             <Link href={`/${locale}/admin`}>
               <Button variant="ghost" size="sm">

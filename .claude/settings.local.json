@@ -77,14 +77,7 @@
       "Bash(node -e \"const p=require\\('./package.json'\\); const deps={...p.dependencies,...p.devDependencies}; ['framer-motion','@react-three/fiber','@react-three/drei','three'].forEach\\(d=>console.log\\(d+':', deps[d]||'NOT INSTALLED'\\)\\)\")",
       "Bash(git reset *)",
       "Bash(npm uninstall *)",
-      "Bash(node -e \"const p=require\\('./package.json'\\); const deps={...p.dependencies,...p.devDependencies}; ['@react-three/fiber','@react-three/drei','three','framer-motion'].forEach\\(d=>console.log\\(d+':', deps[d]||'removed'\\)\\)\")",
-      "Bash(mkdir -p \"d:\\\\Digital_products\\\\AudioBookHub\\\\app\\\\api\\\\music\\\\[id]\")",
-      "Bash(mkdir -p \"d:\\\\Digital_products\\\\AudioBookHub\\\\app\\\\[locale]\\\\music\\\\[id]\")",
-      "Bash(npx dotenv *)"
-    ],
-    "additionalDirectories": [
-      "d:\\Digital_products\\AudioBookHub\\app\\api\\music",
-      "d:\\Digital_products\\AudioBookHub\\app\\[locale]\\music"
+      "Bash(node -e \"const p=require\\('./package.json'\\); const deps={...p.dependencies,...p.devDependencies}; ['@react-three/fiber','@react-three/drei','three','framer-motion'].forEach\\(d=>console.log\\(d+':', deps[d]||'removed'\\)\\)\")"
     ]
   }
 }
