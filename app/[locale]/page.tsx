@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
+import { LiquidBorder } from '@/components/ui/liquid-border';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 /* ─── tiny UI mockups ─────────────────────────────────── */
@@ -165,14 +166,16 @@ export default function LandingPage() {
 
         {/* CTAs */}
         <div className="animate-fade-in-up delay-400 flex flex-wrap items-center justify-center gap-3 mb-4">
-          <Button
-            size="lg"
-            onClick={() => openModal('register')}
-            className="gap-2 bg-blue-500 px-8 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/40 transition-all duration-300 hover:scale-105 text-base font-semibold"
-          >
-            {t('landing_cta_primary')}
-            <ArrowRight className="h-5 w-5" />
-          </Button>
+          <LiquidBorder>
+            <Button
+              size="lg"
+              onClick={() => openModal('register')}
+              className="gap-2 bg-blue-500 px-8 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/40 transition-all duration-300 text-base font-semibold rounded-full"
+            >
+              {t('landing_cta_primary')}
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </LiquidBorder>
           <Button
             size="lg"
             variant="outline"
@@ -250,14 +253,16 @@ export default function LandingPage() {
           <p className="mb-8 text-white/55 text-lg">
             {t('final_cta_desc')}
           </p>
-          <Button
-            size="lg"
-            onClick={() => openModal('register')}
-            className="gap-2 bg-blue-500 px-10 text-white hover:bg-blue-400 shadow-xl shadow-blue-500/30 transition-all duration-300 hover:scale-105 text-base font-semibold"
-          >
-            {t('final_cta_btn')}
-            <ArrowRight className="h-5 w-5" />
-          </Button>
+          <LiquidBorder>
+            <Button
+              size="lg"
+              onClick={() => openModal('register')}
+              className="gap-2 bg-blue-500 px-10 text-white hover:bg-blue-400 shadow-xl shadow-blue-500/30 transition-all duration-300 text-base font-semibold rounded-full"
+            >
+              {t('final_cta_btn')}
+              <ArrowRight className="h-5 w-5" />
+            </Button>
+          </LiquidBorder>
           <p className="mt-4 text-xs text-white/30 flex items-center justify-center gap-1.5">
             <Check className="h-3.5 w-3.5 text-green-400" />
             {t('landing_no_cc')}
