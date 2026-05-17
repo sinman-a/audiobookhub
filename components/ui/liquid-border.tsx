@@ -14,7 +14,6 @@ interface Props {
  * Falls back gracefully if WebGL is unavailable.
  */
 export function LiquidBorder({ children, className = '' }: Props) {
-  const outerRef = useRef<HTMLDivElement>(null);
   const shaderRef = useRef<HTMLDivElement>(null);
   const mountRef = useRef<{
     destroy?: () => void;
@@ -37,13 +36,14 @@ export function LiquidBorder({ children, className = '' }: Props) {
     }
 
     const init = async () => {
-      // Wait two frames: first for layout, second for inset-0 fill to resolve
-      await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
-      if (cancelled || !outerRef.current || !shaderRef.current) return;
+      // Wait for fonts so button text reaches its final rendered width, then one layout frame
+      await document.fonts.ready;
+      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      if (cancelled || !shaderRef.current) return;
 
-      // shaderRef uses inset-0 so it already fills outerRef; measure it directly
-      // and write back explicit px so ShaderMount's WebGL canvas sizes correctly
+      // shaderRef is inset-0 so its rect matches the outer wrapper post-font-load
       const { width, height } = shaderRef.current.getBoundingClientRect();
+      if (!width || !height) return;
       shaderRef.current.style.width = `${width}px`;
       shaderRef.current.style.height = `${height}px`;
 
@@ -85,7 +85,6 @@ export function LiquidBorder({ children, className = '' }: Props) {
 
   return (
     <div
-      ref={outerRef}
       className={`relative inline-flex rounded-full p-[2px] ${className}`}
       onMouseEnter={() => mountRef.current?.setSpeed?.(1.8)}
       onMouseLeave={() => mountRef.current?.setSpeed?.(0.6)}
