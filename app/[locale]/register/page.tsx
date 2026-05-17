@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function RegisterPage() {
   const t = useTranslations();
@@ -65,7 +64,6 @@ export default function RegisterPage() {
       <HeroWave />
       <div className="absolute top-4 right-4 flex items-center gap-2">
         <LanguageSwitcher />
-        <ThemeToggle />
       </div>
       <Card className="relative w-full max-w-md mx-4 bg-black/60 backdrop-blur-md border-white/10 text-white">
         <CardHeader className="text-center space-y-2">

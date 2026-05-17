@@ -7,7 +7,6 @@ import { signOut } from 'next-auth/react';
 import { LogOut, BookHeadphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { ThemeToggle } from './ThemeToggle';
 import { InstallPWA } from './InstallPWA';
 
 interface HeaderProps {
@@ -55,7 +54,6 @@ export function Header({ showAdminLink }: HeaderProps) {
           )}
           <InstallPWA />
           <LanguageSwitcher />
-          <ThemeToggle />
           <Button
             variant="ghost"
             size="icon"

@@ -15,7 +15,6 @@ import HeroWave from '@/components/ui/dynamic-wave-canvas-background';
 import { AuthModal } from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 /* ─── tiny UI mockups ─────────────────────────────────── */
 function MockCatalog() {
@@ -134,7 +133,6 @@ export default function LandingPage() {
         </div>
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
-          <ThemeToggle />
           <Button
             variant="ghost"
             size="sm"
