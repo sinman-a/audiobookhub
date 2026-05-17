@@ -68,7 +68,11 @@
       "Bash(npx next *)",
       "Bash(gh run *)",
       "Bash(gh api *)",
-      "Bash(npx vercel *)"
+      "Bash(npx vercel *)",
+      "Bash(git rm *)",
+      "Bash(findstr /i \"database\\\\|postgres\\\\|direct\")",
+      "Bash(set \"DATABASE_URL_UNPOOLED=postgresql://dummy:dummy@dummy/dummy\")",
+      "Bash(del \"d:\\\\Digital_products\\\\AudioBookHub\\\\app\\\\offline\\\\page.tsx\")"
     ]
   }
 }
