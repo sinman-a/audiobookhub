@@ -176,14 +176,15 @@ export default function LandingPage() {
               <ArrowRight className="h-5 w-5" />
             </Button>
           </LiquidBorder>
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => openModal('login')}
-            className="gap-2 border-white/20 bg-transparent px-8 text-white hover:bg-white/10 hover:text-white hover:border-white/40 transition-all duration-300 text-base"
-          >
-            {t('landing_cta_secondary')}
-          </Button>
+          <LiquidBorder>
+            <Button
+              size="lg"
+              onClick={() => openModal('login')}
+              className="gap-2 bg-[#020617] px-8 text-white hover:bg-[#0a1628] transition-all duration-300 text-base rounded-full"
+            >
+              {t('landing_cta_secondary')}
+            </Button>
+          </LiquidBorder>
         </div>
 
         {/* no cc */}

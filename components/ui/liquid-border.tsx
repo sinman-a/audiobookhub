@@ -8,12 +8,13 @@ interface Props {
 }
 
 /**
- * Wraps any solid-background button with an animated liquid-metal border.
- * The 2px padding gap between the outer container and the button face
- * reveals the WebGL shader canvas as a shimmering border ring.
+ * Wraps any button with an animated liquid-metal border.
+ * Uses explicit pixel dimensions on the shader container (required by
+ * ShaderMount to create a properly sized WebGL canvas).
  * Falls back gracefully if WebGL is unavailable.
  */
 export function LiquidBorder({ children, className = '' }: Props) {
+  const outerRef = useRef<HTMLDivElement>(null);
   const shaderRef = useRef<HTMLDivElement>(null);
   const mountRef = useRef<{
     destroy?: () => void;
@@ -28,11 +29,23 @@ export function LiquidBorder({ children, className = '' }: Props) {
       const el = document.createElement('style');
       el.id = 'lborder-style';
       el.textContent =
-        '.lborder-shader canvas{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border-radius:inherit!important;display:block!important}';
+        '.lborder-shader canvas{' +
+        'position:absolute!important;inset:0!important;' +
+        'width:100%!important;height:100%!important;' +
+        'border-radius:inherit!important;display:block!important}';
       document.head.appendChild(el);
     }
 
     const init = async () => {
+      // Wait one frame so the DOM finishes layout and getBoundingClientRect is accurate
+      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      if (cancelled || !outerRef.current || !shaderRef.current) return;
+
+      // Set explicit pixel dimensions — ShaderMount needs these to size its WebGL canvas
+      const { width, height } = outerRef.current.getBoundingClientRect();
+      shaderRef.current.style.width = `${width}px`;
+      shaderRef.current.style.height = `${height}px`;
+
       try {
         const { ShaderMount, liquidMetalFragmentShader } = await import('@paper-design/shaders');
         if (cancelled || !shaderRef.current) return;
@@ -71,17 +84,18 @@ export function LiquidBorder({ children, className = '' }: Props) {
 
   return (
     <div
+      ref={outerRef}
       className={`relative inline-flex rounded-full p-[2px] ${className}`}
       onMouseEnter={() => mountRef.current?.setSpeed?.(1.8)}
       onMouseLeave={() => mountRef.current?.setSpeed?.(0.6)}
     >
-      {/* Shader canvas: fills container, visible only at the 2px edge gap */}
+      {/* Shader canvas — positioned at top-left with explicit px size measured from outerRef */}
       <div
         ref={shaderRef}
-        className="lborder-shader absolute inset-0 rounded-full overflow-hidden"
+        className="lborder-shader absolute top-0 left-0 rounded-full overflow-hidden"
         aria-hidden
       />
-      {/* Button sits on top, covering the shader except at the 2px edges */}
+      {/* Button content sits on top, covering the shader except at the 2px border gap */}
       <div className="relative z-10">
         {children}
       </div>
