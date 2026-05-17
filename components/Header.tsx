@@ -8,6 +8,7 @@ import { LogOut, BookHeadphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
+import { InstallPWA } from './InstallPWA';
 
 interface HeaderProps {
   showAdminLink?: boolean;
@@ -46,6 +47,7 @@ export function Header({ showAdminLink }: HeaderProps) {
               </Button>
             </Link>
           )}
+          <InstallPWA />
           <LanguageSwitcher />
           <ThemeToggle />
           <Button

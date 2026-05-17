@@ -19,7 +19,16 @@ const locales = ['uk', 'en'];
 
 export const metadata: Metadata = {
   title: 'AudioBook Hub',
-  description: 'Your personal audiobook catalog',
+  description: 'Твоя особиста бібліотека аудіокниг',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'AudioBook Hub',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
 };
 
 export default async function LocaleLayout({

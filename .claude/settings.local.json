@@ -53,7 +53,22 @@
       "Bash(Write-Output \"done\")",
       "Bash(gh auth *)",
       "Bash(gh repo *)",
-      "Bash(git remote *)"
+      "Bash(git remote *)",
+      "Bash(npx ts-node *)",
+      "Bash(node -e 'const {PrismaClient} = require\\('\\\\''@prisma/client'\\\\''\\); const p = new PrismaClient\\(\\); p.user.findMany\\(\\).then\\(u => { console.log\\(JSON.stringify\\(u.map\\(x=>\\({email:x.email,role:x.role}\\)\\)\\)\\); return p.$disconnect\\(\\); }\\);')",
+      "Bash(node -e 'require\\('\\\\''dotenv'\\\\''\\).config\\({path:'\\\\''.env.local'\\\\''}\\); const {PrismaClient} = require\\('\\\\''@prisma/client'\\\\''\\); const p = new PrismaClient\\(\\); p.user.findMany\\({select:{email:true,role:true}}\\).then\\(u => { console.log\\(JSON.stringify\\(u\\)\\); return p.$disconnect\\(\\); }\\);')",
+      "Bash(npx tsx *)",
+      "Bash(node --env-file=.env.production -e 'const {PrismaClient} = require\\('\\\\''@prisma/client'\\\\''\\); const p = new PrismaClient\\(\\); p.user.findMany\\({select:{email:true,role:true}}\\).then\\(u => { console.log\\(JSON.stringify\\(u\\)\\); return p.$disconnect\\(\\); }\\);')",
+      "Bash(node -e ' *)",
+      "Bash(rm -f .env.production)",
+      "Bash(git checkout *)",
+      "Bash(set \"DATABASE_URL=postgresql://dummy:dummy@dummy/dummy\")",
+      "Bash(set \"NEXTAUTH_SECRET=dummy\")",
+      "Bash(set \"POSTGRES_PRISMA_URL=postgresql://dummy:dummy@dummy/dummy?pgbouncer=true\")",
+      "Bash(npx next *)",
+      "Bash(gh run *)",
+      "Bash(gh api *)",
+      "Bash(npx vercel *)"
     ]
   }
 }
