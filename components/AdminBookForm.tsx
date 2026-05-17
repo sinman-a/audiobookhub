@@ -173,6 +173,7 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
             <Select value={form.genre ?? ''} onValueChange={(v) => set('genre', v)}>
               <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="Music">Music / Музика</SelectItem>
                 <SelectItem value="Adventure">Adventure / Пригоди</SelectItem>
                 <SelectItem value="Fantasy">Fantasy / Фантастика</SelectItem>
                 <SelectItem value="Non-fiction">Non-fiction / Нон-фікшн</SelectItem>
