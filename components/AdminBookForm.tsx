@@ -110,18 +110,18 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        if (data.error === 'invalid_youtube_url') {
+        const errData = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        if (errData.error === 'invalid_youtube_url') {
           setErrors({ youtubeUrl: t('invalid_youtube_url') });
           return;
         }
-        throw new Error(data.error);
+        throw new Error(`${res.status}: ${errData.error ?? 'unknown'}`);
       }
 
       toast.success(isEdit ? t('book_updated') : t('book_added'));
       onSuccess();
-    } catch {
-      toast.error('Error');
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : 'Error');
     } finally {
       setLoading(false);
     }
