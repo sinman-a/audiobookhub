@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Aurora background ─────────────────────────────────── */
+@property --aurora-color {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #13FFAA;
+}
+
+@keyframes aurora-shift {
+  0%   { --aurora-color: #13FFAA; }
+  33%  { --aurora-color: #1E67C6; }
+  66%  { --aurora-color: #CE84CF; }
+  100% { --aurora-color: #DD335C; }
+}
+
+.aurora-gradient {
+  background: radial-gradient(125% 125% at 50% 0%, #020617 50%, var(--aurora-color));
+  animation: aurora-shift 10s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-gradient {
+    animation: none;
+    background: radial-gradient(125% 125% at 50% 0%, #020617 50%, #1E67C6);
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
