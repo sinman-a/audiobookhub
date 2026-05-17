@@ -79,5 +79,13 @@
 
   "continue_listening": "Продовжити прослуховування",
   "resume_from": "Збережена позиція:",
-  "continue": "Продовжити"
+  "continue": "Продовжити",
+
+  "search_placeholder": "Пошук за назвою, автором або описом…",
+  "search_btn": "Пошук",
+  "filter_all_genres": "Усі жанри",
+  "filter_all_authors": "Усі автори",
+  "clear_filters": "Скинути",
+  "results_count": "Знайдено {count} книг",
+  "no_results": "За вашим запитом книг не знайдено"
 }

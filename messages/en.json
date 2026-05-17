@@ -79,5 +79,13 @@
 
   "continue_listening": "Continue Listening",
   "resume_from": "Saved position:",
-  "continue": "Continue"
+  "continue": "Continue",
+
+  "search_placeholder": "Search by title, author or description…",
+  "search_btn": "Search",
+  "filter_all_genres": "All Genres",
+  "filter_all_authors": "All Authors",
+  "clear_filters": "Clear",
+  "results_count": "{count} books found",
+  "no_results": "No books match your search"
 }
