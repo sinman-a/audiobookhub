@@ -81,6 +81,13 @@
   "resume_from": "Saved position:",
   "continue": "Continue",
 
+  "music": "Music",
+  "music_catalog": "Music Catalog",
+  "back_to_music": "Back to Music",
+  "artist": "Artist",
+  "category_book": "Audiobook",
+  "category_music": "Music",
+
   "search_placeholder": "Search by title, author or description…",
   "search_btn": "Search",
   "filter_all_genres": "All Genres",

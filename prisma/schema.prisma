@@ -17,23 +17,29 @@ model User {
 }
 
 model Audiobook {
-  id               String   @id @default(cuid())
+  id               String        @id @default(cuid())
   title            String
   author           String
   imageUrl         String
   youtubeId        String
-  descriptionShort String   @db.Text
-  descriptionLong  String   @db.Text
+  descriptionShort String        @db.Text
+  descriptionLong  String        @db.Text
   duration         String
   genre            String
   language         String
   year             Int
-  isPublished      Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  isPublished      Boolean       @default(false)
+  category         ItemCategory  @default(BOOK)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+enum ItemCategory {
+  BOOK
+  MUSIC
 }

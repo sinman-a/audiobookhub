@@ -49,6 +49,7 @@ const formSchema = z.object({
   language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100),
   isPublished: z.boolean(),
+  category: z.enum(['BOOK', 'MUSIC']),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -70,6 +71,7 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
     language: book?.language ?? '',
     year: book?.year ?? new Date().getFullYear(),
     isPublished: book?.isPublished ?? false,
+    category: (book as { category?: 'BOOK' | 'MUSIC' } | null)?.category ?? 'BOOK',
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
@@ -168,6 +170,15 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
               onChange={(e) => set('descriptionLong', e.target.value)}
               rows={5}
             />
+          </Field>
+          <Field label="Категорія / Category" error={errors.category}>
+            <Select value={form.category} onValueChange={(v) => set('category', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="BOOK">{t('category_book')}</SelectItem>
+                <SelectItem value="MUSIC">{t('category_music')}</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <Field label={t('genre')} error={errors.genre}>
             <Select value={form.genre ?? ''} onValueChange={(v) => set('genre', v)}>

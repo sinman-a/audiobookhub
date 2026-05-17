@@ -23,6 +23,7 @@ interface Audiobook {
   language: string;
   year: number;
   isPublished: boolean;
+  category: 'BOOK' | 'MUSIC';
 }
 
 export default function AdminPage() {

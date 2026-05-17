@@ -17,6 +17,7 @@ const updateSchema = z.object({
   language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100).optional(),
   isPublished: z.boolean().optional(),
+  category: z.enum(['BOOK', 'MUSIC']).optional(),
 });
 
 async function requireAdmin(req: NextRequest) {
@@ -48,6 +49,7 @@ export async function PUT(
     if (data.language !== undefined) prismaData.language = data.language;
     if (data.year !== undefined) prismaData.year = data.year;
     if (data.isPublished !== undefined) prismaData.isPublished = data.isPublished;
+    if (data.category !== undefined) prismaData.category = data.category;
 
     if (data.youtubeUrl) {
       const youtubeId = extractYoutubeId(data.youtubeUrl);

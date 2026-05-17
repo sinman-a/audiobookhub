@@ -3,14 +3,17 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const books = await prisma.audiobook.findMany({
-    where: { isPublished: true, category: 'BOOK' },
-    orderBy: { createdAt: 'desc' },
+  const track = await prisma.audiobook.findFirst({
+    where: { id: params.id, category: 'MUSIC' },
   });
+  if (!track) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  return NextResponse.json(books);
+  return NextResponse.json(track);
 }
