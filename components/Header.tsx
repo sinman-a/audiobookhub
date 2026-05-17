@@ -20,6 +20,12 @@ export function Header({ showAdminLink }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-background focus:text-foreground focus:rounded focus:shadow-lg"
+      >
+        Skip to content
+      </a>
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href={`/${locale}/dashboard`} className="flex items-center gap-2">
           <div className="relative h-8 w-8 overflow-hidden rounded-md">
@@ -54,7 +60,7 @@ export function Header({ showAdminLink }: HeaderProps) {
             variant="ghost"
             size="icon"
             onClick={async () => { await signOut({ redirect: false }); window.location.href = '/'; }}
-            title={t('logout')}
+            aria-label={t('logout')}
           >
             <LogOut className="h-5 w-5" />
           </Button>

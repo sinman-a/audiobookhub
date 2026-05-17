@@ -101,7 +101,7 @@ export function AdminBookTable({ books, onRefresh }: Props) {
                       size="icon"
                       onClick={() => handleTogglePublish(book)}
                       disabled={togglingId === book.id}
-                      title={book.isPublished ? t('draft') : t('published')}
+                      aria-label={book.isPublished ? t('draft') : t('published')}
                       className={book.isPublished ? 'text-green-500 hover:text-green-600' : 'text-muted-foreground'}
                     >
                       {book.isPublished ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
@@ -110,6 +110,7 @@ export function AdminBookTable({ books, onRefresh }: Props) {
                       variant="ghost"
                       size="icon"
                       onClick={() => setEditBook(book)}
+                      aria-label={t('edit_book_title')}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -118,6 +119,7 @@ export function AdminBookTable({ books, onRefresh }: Props) {
                       size="icon"
                       onClick={() => handleDelete(book.id)}
                       disabled={deletingId === book.id}
+                      aria-label={t('confirm_delete')}
                       className="text-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />

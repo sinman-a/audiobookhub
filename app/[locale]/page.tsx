@@ -147,19 +147,19 @@ export default function LandingPage() {
       </header>
 
       {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 pt-24 pb-16">
+      <section id="main-content" className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 pt-24 pb-16">
         {/* badge */}
-        <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-sm text-blue-300">
+        <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-sm text-blue-400">
           <Headphones className="h-4 w-4" />
           {t('landing_badge')}
         </div>
 
         {/* title */}
-        <h1 className="animate-fade-in-up delay-100 mb-3 max-w-3xl text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
-          {t('landing_title')}
-        </h1>
-        <h1 className="animate-fade-in-up delay-200 mb-6 max-w-3xl text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl text-gradient-animate">
-          {t('landing_title_accent')}
+        <h1 className="animate-fade-in-up delay-100 mb-6 max-w-3xl text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
+          {t('landing_title')}{' '}
+          <span className="animate-fade-in-up delay-200 block text-gradient-animate">
+            {t('landing_title_accent')}
+          </span>
         </h1>
 
         {/* subtitle */}

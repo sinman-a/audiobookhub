@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useId } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -251,10 +251,12 @@ function Field({
   children: React.ReactNode;
   className?: string;
 }) {
+  const id = useId();
+  const child = children as React.ReactElement<{ id?: string }>;
   return (
     <div className={`space-y-1.5 ${className ?? ''}`}>
-      <Label>{label}</Label>
-      {children}
+      <Label htmlFor={id}>{label}</Label>
+      {React.cloneElement(child, { id })}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );

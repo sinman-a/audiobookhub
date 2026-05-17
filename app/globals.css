@@ -115,3 +115,10 @@
   background-clip: text;
   animation: gradientShift 4s ease infinite;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .text-gradient-animate {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}

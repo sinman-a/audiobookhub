@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -29,6 +29,7 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
   const locale = useLocale();
   const router = useRouter();
 
+  const uid = useId();
   const [mode, setMode] = useState<Mode>(defaultMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -102,7 +103,7 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
               className={`flex-1 py-4 text-sm font-medium transition-colors ${
                 mode === m
                   ? 'text-white border-b-2 border-blue-400'
-                  : 'text-white/40 hover:text-white/70'
+                  : 'text-white/60 hover:text-white/80'
               }`}
             >
               {m === 'login' ? t('login') : t('register')}
@@ -123,8 +124,9 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
           {mode === 'login' ? (
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-white/70">{t('email')}</Label>
+                <Label htmlFor={`${uid}-login-email`} className="text-white/70">{t('email')}</Label>
                 <Input
+                  id={`${uid}-login-email`}
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -134,8 +136,9 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-white/70">{t('password')}</Label>
+                <Label htmlFor={`${uid}-login-password`} className="text-white/70">{t('password')}</Label>
                 <Input
+                  id={`${uid}-login-password`}
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -152,7 +155,7 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t('login')}
               </Button>
-              <p className="text-center text-sm text-white/40">
+              <p className="text-center text-sm text-white/60">
                 {t('no_account')}{' '}
                 <button
                   type="button"
@@ -166,8 +169,9 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
           ) : (
             <form onSubmit={handleRegister} className="space-y-4">
               <div className="space-y-1.5">
-                <Label className="text-white/70">{t('email')}</Label>
+                <Label htmlFor={`${uid}-reg-email`} className="text-white/70">{t('email')}</Label>
                 <Input
+                  id={`${uid}-reg-email`}
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -177,8 +181,9 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
                 {errors.email && <p className="text-xs text-red-400">{errors.email}</p>}
               </div>
               <div className="space-y-1.5">
-                <Label className="text-white/70">{t('password')}</Label>
+                <Label htmlFor={`${uid}-reg-password`} className="text-white/70">{t('password')}</Label>
                 <Input
+                  id={`${uid}-reg-password`}
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -188,8 +193,9 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
                 {errors.password && <p className="text-xs text-red-400">{errors.password}</p>}
               </div>
               <div className="space-y-1.5">
-                <Label className="text-white/70">{t('confirm_password')}</Label>
+                <Label htmlFor={`${uid}-reg-confirm`} className="text-white/70">{t('confirm_password')}</Label>
                 <Input
+                  id={`${uid}-reg-confirm`}
                   type="password"
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
@@ -205,7 +211,7 @@ export function AuthModal({ open, onOpenChange, defaultMode = 'register' }: Auth
               >
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : t('landing_cta_primary')}
               </Button>
-              <p className="text-center text-sm text-white/40">
+              <p className="text-center text-sm text-white/60">
                 {t('have_account')}{' '}
                 <button
                   type="button"
