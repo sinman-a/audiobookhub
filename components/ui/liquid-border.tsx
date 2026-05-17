@@ -37,12 +37,13 @@ export function LiquidBorder({ children, className = '' }: Props) {
     }
 
     const init = async () => {
-      // Wait one frame so the DOM finishes layout and getBoundingClientRect is accurate
-      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      // Wait two frames: first for layout, second for inset-0 fill to resolve
+      await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
       if (cancelled || !outerRef.current || !shaderRef.current) return;
 
-      // Set explicit pixel dimensions — ShaderMount needs these to size its WebGL canvas
-      const { width, height } = outerRef.current.getBoundingClientRect();
+      // shaderRef uses inset-0 so it already fills outerRef; measure it directly
+      // and write back explicit px so ShaderMount's WebGL canvas sizes correctly
+      const { width, height } = shaderRef.current.getBoundingClientRect();
       shaderRef.current.style.width = `${width}px`;
       shaderRef.current.style.height = `${height}px`;
 
@@ -89,10 +90,10 @@ export function LiquidBorder({ children, className = '' }: Props) {
       onMouseEnter={() => mountRef.current?.setSpeed?.(1.8)}
       onMouseLeave={() => mountRef.current?.setSpeed?.(0.6)}
     >
-      {/* Shader canvas — positioned at top-left with explicit px size measured from outerRef */}
+      {/* Shader canvas — inset-0 fills parent; explicit px written after measure for ShaderMount */}
       <div
         ref={shaderRef}
-        className="lborder-shader absolute top-0 left-0 rounded-full overflow-hidden"
+        className="lborder-shader absolute inset-0 rounded-full overflow-hidden"
         aria-hidden
       />
       {/* Button content sits on top, covering the shader except at the 2px border gap */}
