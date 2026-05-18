@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSession } from 'next-auth/react';
-import { BookOpen, Folder, Search, X } from 'lucide-react';
+import { BookOpen, ChevronDown, Folder, Search, X } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { BookGlowCard } from '@/components/BookGlowCard';
 import { BookCardSkeleton } from '@/components/BookCardSkeleton';
@@ -84,6 +84,15 @@ export default function DashboardPage() {
     }
     return new Map(Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b)));
   }, [filteredBooks]);
+
+  // Accordion: tracks which genres are collapsed (default: all expanded)
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const toggleGenre = (genre: string) =>
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      next.has(genre) ? next.delete(genre) : next.add(genre);
+      return next;
+    });
 
   const isFiltered = appliedQuery || genreFilter || authorFilter;
 
@@ -190,29 +199,50 @@ export default function DashboardPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-10">
-            {Array.from(booksByGenre.entries()).map(([genre, genreBooks]) => (
+          <div className="space-y-4">
+            {Array.from(booksByGenre.entries()).map(([genre, genreBooks]) => {
+              const isOpen = !collapsed.has(genre);
+              return (
               <section key={genre} aria-label={genre}>
-                {/* Folder header */}
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
+                {/* Folder header — clickable accordion trigger */}
+                <button
+                  onClick={() => toggleGenre(genre)}
+                  className="flex w-full items-center gap-3 mb-0 group"
+                  aria-expanded={isOpen}
+                >
+                  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm group-hover:border-white/20 group-hover:bg-white/8 transition-colors">
                     <Folder className="h-4 w-4 text-blue-400 fill-blue-400/20" />
                     <span className="font-semibold text-sm text-white">{genre}</span>
                     <Badge variant="secondary" className="h-5 px-1.5 text-xs">
                       {genreBooks.length}
                     </Badge>
+                    <ChevronDown
+                      className="h-3.5 w-3.5 text-white/40 transition-transform duration-300"
+                      style={{ transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                    />
                   </div>
                   <div className="flex-1 h-px bg-white/8" />
-                </div>
+                </button>
 
-                {/* Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                  {genreBooks.map((book) => (
-                    <BookGlowCard key={book.id} book={book} />
-                  ))}
+                {/* Animated cards container — grid-rows trick for smooth height */}
+                <div
+                  className="grid overflow-hidden"
+                  style={{
+                    gridTemplateRows: isOpen ? '1fr' : '0fr',
+                    transition: 'grid-template-rows 0.35s ease',
+                  }}
+                >
+                  <div className="min-h-0">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pt-5">
+                      {genreBooks.map((book) => (
+                        <BookGlowCard key={book.id} book={book} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </section>
-            ))}
+              );
+            })}
           </div>
         )}
       </main>
