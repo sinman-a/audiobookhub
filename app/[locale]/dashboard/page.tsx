@@ -3,13 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSession } from 'next-auth/react';
-import { BookOpen, Search, X } from 'lucide-react';
+import { BookOpen, Folder, Search, X } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { BookCard } from '@/components/BookCard';
+import { BookGlowCard } from '@/components/BookGlowCard';
 import { BookCardSkeleton } from '@/components/BookCardSkeleton';
 import { ContinueListening } from '@/components/ContinueListening';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -34,7 +35,6 @@ export default function DashboardPage() {
   const [books, setBooks] = useState<Audiobook[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // search state: query is the live input value, appliedQuery triggers filtering
   const [query, setQuery] = useState('');
   const [appliedQuery, setAppliedQuery] = useState('');
   const [genreFilter, setGenreFilter] = useState('');
@@ -51,7 +51,6 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Unique sorted genre / author lists derived from loaded books
   const genres = useMemo(
     () => Array.from(new Set(books.map((b) => b.genre).filter(Boolean))).sort(),
     [books],
@@ -75,10 +74,20 @@ export default function DashboardPage() {
     });
   }, [books, appliedQuery, genreFilter, authorFilter]);
 
+  // Group filtered books by genre, sorted alphabetically
+  const booksByGenre = useMemo(() => {
+    const groups = new Map<string, Audiobook[]>();
+    for (const book of filteredBooks) {
+      const genre = book.genre || 'Other';
+      if (!groups.has(genre)) groups.set(genre, []);
+      groups.get(genre)!.push(book);
+    }
+    return new Map(Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b)));
+  }, [filteredBooks]);
+
   const isFiltered = appliedQuery || genreFilter || authorFilter;
 
   const handleSearch = () => setAppliedQuery(query);
-
   const handleClear = () => {
     setQuery('');
     setAppliedQuery('');
@@ -95,8 +104,7 @@ export default function DashboardPage() {
         <ContinueListening />
 
         {/* ── Search & Filters ─────────────────────────────── */}
-        <div className="mb-6 space-y-3">
-          {/* Search row */}
+        <div className="mb-8 space-y-3">
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -115,9 +123,7 @@ export default function DashboardPage() {
             </Button>
           </div>
 
-          {/* Filters row */}
           <div className="flex flex-wrap gap-2 items-center">
-            {/* Genre filter */}
             <Select
               value={genreFilter}
               onValueChange={(val) => setGenreFilter(val === '__all__' ? '' : val)}
@@ -128,14 +134,11 @@ export default function DashboardPage() {
               <SelectContent>
                 <SelectItem value="__all__">{t('filter_all_genres')}</SelectItem>
                 {genres.map((g) => (
-                  <SelectItem key={g} value={g}>
-                    {g}
-                  </SelectItem>
+                  <SelectItem key={g} value={g}>{g}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            {/* Author filter */}
             <Select
               value={authorFilter}
               onValueChange={(val) => setAuthorFilter(val === '__all__' ? '' : val)}
@@ -146,14 +149,11 @@ export default function DashboardPage() {
               <SelectContent>
                 <SelectItem value="__all__">{t('filter_all_authors')}</SelectItem>
                 {authors.map((a) => (
-                  <SelectItem key={a} value={a}>
-                    {a}
-                  </SelectItem>
+                  <SelectItem key={a} value={a}>{a}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            {/* Clear button — only when a filter is active */}
             {isFiltered && (
               <Button
                 variant="ghost"
@@ -167,7 +167,6 @@ export default function DashboardPage() {
               </Button>
             )}
 
-            {/* Results count — only when a filter is active and books are loaded */}
             {isFiltered && !loading && (
               <span className="ml-auto text-sm text-muted-foreground">
                 {t('results_count', { count: filteredBooks.length })}
@@ -176,7 +175,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Book grid ────────────────────────────────────── */}
+        {/* ── Content ──────────────────────────────────────── */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -191,9 +190,28 @@ export default function DashboardPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredBooks.map((book) => (
-              <BookCard key={book.id} book={book} />
+          <div className="space-y-10">
+            {Array.from(booksByGenre.entries()).map(([genre, genreBooks]) => (
+              <section key={genre} aria-label={genre}>
+                {/* Folder header */}
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm">
+                    <Folder className="h-4 w-4 text-blue-400 fill-blue-400/20" />
+                    <span className="font-semibold text-sm text-white">{genre}</span>
+                    <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                      {genreBooks.length}
+                    </Badge>
+                  </div>
+                  <div className="flex-1 h-px bg-white/8" />
+                </div>
+
+                {/* Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                  {genreBooks.map((book) => (
+                    <BookGlowCard key={book.id} book={book} />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
         )}
