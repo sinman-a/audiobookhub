@@ -27,6 +27,14 @@ interface Audiobook {
   descriptionShort: string;
   duration: string;
   genre: string;
+  language: string;
+}
+
+function parseDurationHours(duration: string): number {
+  if (!duration) return 0;
+  const parts = duration.split(':').map(Number);
+  if (parts.length === 3) return parts[0] + parts[1] / 60 + parts[2] / 3600;
+  return 0;
 }
 
 export default function DashboardPage() {
@@ -36,9 +44,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   const [query, setQuery] = useState('');
-  const [appliedQuery, setAppliedQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [genreFilter, setGenreFilter] = useState('');
   const [authorFilter, setAuthorFilter] = useState('');
+  const [languageFilter, setLanguageFilter] = useState('');
+  const [durationFilter, setDurationFilter] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
 
   const inputRef = useRef<HTMLInputElement>(null);
   const isAdmin = session?.user?.role === 'ADMIN';
@@ -51,6 +62,11 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
   const genres = useMemo(
     () => Array.from(new Set(books.map((b) => b.genre).filter(Boolean))).sort(),
     [books],
@@ -61,8 +77,8 @@ export default function DashboardPage() {
   );
 
   const filteredBooks = useMemo(() => {
-    const q = appliedQuery.toLowerCase().trim();
-    return books.filter((book) => {
+    const q = debouncedQuery.toLowerCase().trim();
+    let result = books.filter((book) => {
       const matchesQuery =
         !q ||
         book.title.toLowerCase().includes(q) ||
@@ -70,9 +86,26 @@ export default function DashboardPage() {
         book.descriptionShort.toLowerCase().includes(q);
       const matchesGenre = !genreFilter || book.genre === genreFilter;
       const matchesAuthor = !authorFilter || book.author === authorFilter;
-      return matchesQuery && matchesGenre && matchesAuthor;
+      const matchesLanguage = !languageFilter || book.language === languageFilter;
+      const hours = parseDurationHours(book.duration);
+      const matchesDuration =
+        !durationFilter ||
+        (durationFilter === '<4' && hours < 4) ||
+        (durationFilter === '4-8' && hours >= 4 && hours <= 8) ||
+        (durationFilter === '>8' && hours > 8);
+      return matchesQuery && matchesGenre && matchesAuthor && matchesLanguage && matchesDuration;
     });
-  }, [books, appliedQuery, genreFilter, authorFilter]);
+
+    if (sortBy === 'alpha') {
+      result = [...result].sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortBy === 'longest') {
+      result = [...result].sort(
+        (a, b) => parseDurationHours(b.duration) - parseDurationHours(a.duration),
+      );
+    }
+
+    return result;
+  }, [books, debouncedQuery, genreFilter, authorFilter, languageFilter, durationFilter, sortBy]);
 
   // Group filtered books by genre, sorted alphabetically
   const booksByGenre = useMemo(() => {
@@ -94,14 +127,18 @@ export default function DashboardPage() {
       return next;
     });
 
-  const isFiltered = appliedQuery || genreFilter || authorFilter;
+  const isFiltered =
+    debouncedQuery || genreFilter || authorFilter || languageFilter || durationFilter || sortBy !== 'newest';
 
-  const handleSearch = () => setAppliedQuery(query);
+  const handleSearch = () => setDebouncedQuery(query);
   const handleClear = () => {
     setQuery('');
-    setAppliedQuery('');
+    setDebouncedQuery('');
     setGenreFilter('');
     setAuthorFilter('');
+    setLanguageFilter('');
+    setDurationFilter('');
+    setSortBy('newest');
     inputRef.current?.focus();
   };
 
@@ -160,6 +197,46 @@ export default function DashboardPage() {
                 {authors.map((a) => (
                   <SelectItem key={a} value={a}>{a}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={languageFilter}
+              onValueChange={(val) => setLanguageFilter(val === '__all__' ? '' : val)}
+            >
+              <SelectTrigger className="w-44" aria-label={t('language')}>
+                <SelectValue placeholder={t('filter_all_languages')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">{t('filter_all_languages')}</SelectItem>
+                <SelectItem value="UA">🇺🇦 UA</SelectItem>
+                <SelectItem value="EN">🇬🇧 EN</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={durationFilter}
+              onValueChange={(val) => setDurationFilter(val === '__all__' ? '' : val)}
+            >
+              <SelectTrigger className="w-48" aria-label={t('duration')}>
+                <SelectValue placeholder={t('filter_duration_all')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">{t('filter_duration_all')}</SelectItem>
+                <SelectItem value="<4">{t('filter_duration_short')}</SelectItem>
+                <SelectItem value="4-8">{t('filter_duration_medium')}</SelectItem>
+                <SelectItem value=">8">{t('filter_duration_long')}</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-48" aria-label={t('sort_by')}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">{t('sort_newest')}</SelectItem>
+                <SelectItem value="alpha">{t('sort_alpha')}</SelectItem>
+                <SelectItem value="longest">{t('sort_longest')}</SelectItem>
               </SelectContent>
             </Select>
 

@@ -87,5 +87,14 @@
   "filter_all_authors": "All Authors",
   "clear_filters": "Clear",
   "results_count": "{count} books found",
-  "no_results": "No books match your search"
+  "no_results": "No books match your search",
+  "filter_all_languages": "All languages",
+  "filter_duration_all": "Any duration",
+  "filter_duration_short": "< 4 hrs",
+  "filter_duration_medium": "4–8 hrs",
+  "filter_duration_long": "> 8 hrs",
+  "sort_by": "Sort by",
+  "sort_newest": "Newest",
+  "sort_alpha": "A–Z",
+  "sort_longest": "Longest"
 }

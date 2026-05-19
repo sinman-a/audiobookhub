@@ -87,5 +87,14 @@
   "filter_all_authors": "Усі автори",
   "clear_filters": "Скинути",
   "results_count": "Знайдено {count} книг",
-  "no_results": "За вашим запитом книг не знайдено"
+  "no_results": "За вашим запитом книг не знайдено",
+  "filter_all_languages": "Усі мови",
+  "filter_duration_all": "Будь-яка тривалість",
+  "filter_duration_short": "< 4 год",
+  "filter_duration_medium": "4–8 год",
+  "filter_duration_long": "> 8 год",
+  "sort_by": "Сортування",
+  "sort_newest": "Нові",
+  "sort_alpha": "За алфавітом",
+  "sort_longest": "Найдовші"
 }
