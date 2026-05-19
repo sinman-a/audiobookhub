@@ -12,12 +12,13 @@ import {
   ArrowRight,
   Check,
   Clock,
+  PlayCircle,
 } from 'lucide-react';
 import { AuthModal } from '@/components/AuthModal';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { LiquidBorder } from '@/components/ui/liquid-border';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { GlowCard } from '@/components/ui/spotlight-card';
 
 interface BookData {
   id: string;
@@ -98,6 +99,21 @@ function FeatureCard({
   );
 }
 
+const GENRE_COLOR: Record<string, 'blue' | 'purple' | 'green' | 'red' | 'orange'> = {
+  Adventure:     'orange',
+  Fantasy:       'purple',
+  'Non-fiction': 'blue',
+  Detective:     'red',
+  Classic:       'green',
+  Romance:       'red',
+  Biography:     'blue',
+  Music:         'purple',
+};
+
+function glowFor(genre: string): 'blue' | 'purple' | 'green' | 'red' | 'orange' {
+  return GENRE_COLOR[genre] ?? 'blue';
+}
+
 /* ─── Public book card ──────────────────────────────────── */
 function PublicBookCard({ book, onListen }: { book: BookData; onListen: () => void }) {
   const t = useTranslations();
@@ -106,41 +122,45 @@ function PublicBookCard({ book, onListen }: { book: BookData; onListen: () => vo
   return (
     <Link
       href={`/${locale}/book/${book.id}`}
-      className="group block rounded-xl border border-white/10 bg-white/5 overflow-hidden hover:border-white/20 hover:bg-white/8 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl"
     >
-      <div className="relative aspect-[2/3] overflow-hidden">
-        <Image
-          src={book.imageUrl || '/placeholder.jpg'}
-          alt={book.title}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-          sizes="(max-width: 640px) 50vw, 25vw"
-        />
-      </div>
-      <div className="p-3 space-y-2">
-        <h3 className="font-semibold text-sm text-white leading-tight line-clamp-2">{book.title}</h3>
-        <p className="text-xs text-white/50 truncate">{book.author}</p>
-        <div className="flex items-center justify-between">
-          {book.genre && (
-            <Badge variant="secondary" className="text-xs px-1.5 py-0">
-              {book.genre}
-            </Badge>
-          )}
-          {book.duration && (
-            <span className="flex items-center gap-1 text-xs text-white/40">
-              <Clock className="h-3 w-3" />
-              {book.duration}
-            </span>
-          )}
+      <GlowCard
+        customSize
+        className="w-full h-80 cursor-pointer transition-transform duration-200 hover:-translate-y-1"
+        glowColor={glowFor(book.genre)}
+      >
+        {/* Row 1 — cover image */}
+        <div className="relative overflow-hidden rounded-xl min-h-0">
+          <Image
+            src={book.imageUrl || '/placeholder.jpg'}
+            alt={book.title}
+            fill
+            className="object-contain"
+            sizes="(max-width: 640px) 50vw, 25vw"
+          />
         </div>
-        <button
-          onClick={(e) => { e.preventDefault(); onListen(); }}
-          className="w-full mt-1 flex items-center justify-center gap-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 hover:text-blue-300 text-xs font-medium py-1.5 transition-colors"
-        >
-          <Play className="h-3 w-3 fill-current" />
-          {t('listen_free')}
-        </button>
-      </div>
+
+        {/* Row 2 — info */}
+        <div className="space-y-1.5">
+          <h3 className="font-semibold text-sm text-white leading-tight line-clamp-2">{book.title}</h3>
+          <p className="text-xs text-white/55 truncate">{book.author}</p>
+          <div className="flex items-center justify-between pt-0.5">
+            {book.duration ? (
+              <span className="flex items-center gap-1 text-xs text-white/40">
+                <Clock className="h-3 w-3" />
+                {book.duration}
+              </span>
+            ) : <span />}
+            <button
+              onClick={(e) => { e.preventDefault(); onListen(); }}
+              className="flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              <PlayCircle className="h-3.5 w-3.5" />
+              {t('listen_free')}
+            </button>
+          </div>
+        </div>
+      </GlowCard>
     </Link>
   );
 }
