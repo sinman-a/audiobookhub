@@ -94,7 +94,7 @@ export function BookGlowCard({ book, progressSeconds, totalSeconds, isFavorite }
 
         {/* Row 2 (auto) — info */}
         <div className="space-y-1.5">
-          <h3 className="font-semibold text-sm text-white leading-tight line-clamp-2">
+          <h3 className="font-semibold text-sm text-white leading-tight line-clamp-2 min-h-[2.5em]">
             {book.title}
           </h3>
           <p className="text-xs text-white/55 truncate">{book.author}</p>
