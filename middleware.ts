@@ -5,7 +5,7 @@ const locales = ['uk', 'en'] as const;
 type Locale = (typeof locales)[number];
 const defaultLocale: Locale = 'uk';
 
-const protectedPaths = ['/dashboard', '/book'];
+const protectedPaths = ['/dashboard'];
 const adminPaths = ['/admin'];
 const authPaths = ['/login', '/register'];
 
