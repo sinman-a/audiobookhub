@@ -56,11 +56,11 @@ export default function DashboardPage() {
   useEffect(() => {
     Promise.all([
       fetch('/api/audiobooks').then((r) => r.json()),
-      fetch('/api/progress').then((r) => r.ok ? r.json() : {}),
+      fetch('/api/progress').then((r): Promise<Record<string, number>> => r.ok ? r.json() : Promise.resolve({})),
     ])
       .then(([booksData, progressData]) => {
         setBooks(Array.isArray(booksData) ? booksData : []);
-        setProgressMap(progressData && typeof progressData === 'object' ? progressData : {});
+        setProgressMap(progressData ?? {});
       })
       .catch(() => { setBooks([]); setProgressMap({}); })
       .finally(() => setLoading(false));
