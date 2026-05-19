@@ -7,6 +7,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dynamic from 'next/dynamic';
 import { Providers } from '@/components/Providers';
+import { PostHogProvider } from '@/components/PostHogProvider';
 
 const AuroraBackground = dynamic(
   () => import('@/components/ui/aurora-background').then((m) => ({ default: m.AuroraBackground })),
@@ -53,11 +54,13 @@ export default async function LocaleLayout({
     <html lang={locale} className={`${rubik.variable} dark`} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <AuroraBackground />
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Providers session={session}>
-            {children}
-          </Providers>
-        </NextIntlClientProvider>
+        <PostHogProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            <Providers session={session}>
+              {children}
+            </Providers>
+          </NextIntlClientProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

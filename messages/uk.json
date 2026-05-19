@@ -108,5 +108,20 @@
   "library_empty_favorites": "Ви ще не додали жодної книги до вибраного",
   "library_empty_finished": "Ви ще не завершили жодної книги",
   "add_to_favorites": "Додати до вибраного",
-  "remove_from_favorites": "Видалити з вибраного"
+  "remove_from_favorites": "Видалити з вибраного",
+
+  "analytics": "Аналітика",
+  "analytics_dau": "DAU",
+  "analytics_wau": "WAU",
+  "analytics_mau": "MAU",
+  "analytics_total_users": "Всього користувачів",
+  "analytics_top_listens": "Топ за прослуховуваннями",
+  "analytics_top_completions": "Топ за завершеннями",
+  "analytics_funnel": "Воронка конверсії",
+  "analytics_30d_chart": "Активні слухачі (30 днів)",
+  "analytics_no_data": "Даних ще немає",
+  "analytics_active": "Активні",
+  "analytics_funnel_registered": "Зареєстровані",
+  "analytics_funnel_opened": "Відкрили книгу",
+  "analytics_funnel_played5min": "Слухали 5+ хв"
 }

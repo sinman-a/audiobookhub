@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import posthog from 'posthog-js';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
@@ -37,6 +38,10 @@ export function BookDetailClient({ book, isAuthenticated }: Props) {
   const locale = useLocale();
   const { data: session } = useSession();
   const [modalOpen, setModalOpen] = useState(false);
+
+  useEffect(() => {
+    posthog.capture('book_viewed', { bookId: book.id, title: book.title, genre: book.genre });
+  }, [book.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isAdmin = session?.user?.role === 'ADMIN';
 

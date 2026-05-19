@@ -108,5 +108,20 @@
   "library_empty_favorites": "You haven't favorited any books yet",
   "library_empty_finished": "You haven't finished any books yet",
   "add_to_favorites": "Add to Favorites",
-  "remove_from_favorites": "Remove from Favorites"
+  "remove_from_favorites": "Remove from Favorites",
+
+  "analytics": "Analytics",
+  "analytics_dau": "DAU",
+  "analytics_wau": "WAU",
+  "analytics_mau": "MAU",
+  "analytics_total_users": "Total Users",
+  "analytics_top_listens": "Top by Listens",
+  "analytics_top_completions": "Top by Completions",
+  "analytics_funnel": "Conversion Funnel",
+  "analytics_30d_chart": "Active Listeners (30 days)",
+  "analytics_no_data": "No data yet",
+  "analytics_active": "Active",
+  "analytics_funnel_registered": "Registered",
+  "analytics_funnel_opened": "Opened a Book",
+  "analytics_funnel_played5min": "Played 5+ min"
 }

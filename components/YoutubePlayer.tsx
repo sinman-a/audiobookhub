@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import posthog from 'posthog-js';
 import { getProgress, saveProgress, syncToDb } from '@/lib/playback';
 
 /* ── Minimal YouTube IFrame API types ── */
 interface YTPlayer {
   getCurrentTime(): number;
+  getDuration(): number;
   seekTo(seconds: number, allowSeekAhead: boolean): void;
   destroy(): void;
 }
@@ -46,8 +48,12 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
   const divRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YTPlayer | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
+  const hasStartedRef = useRef(false);
+  const has25Ref = useRef(false);
 
   useEffect(() => {
+    hasStartedRef.current = false;
+    has25Ref.current = false;
     let destroyed = false;
 
     const savedProgress = getProgress(bookId);
@@ -67,15 +73,29 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
           },
           onStateChange: ({ data, target }) => {
             if (data === 1 /* PLAYING */) {
+              if (!hasStartedRef.current) {
+                hasStartedRef.current = true;
+                posthog.capture('play_started', { bookId, title: bookTitle });
+              }
               clearInterval(intervalRef.current);
               intervalRef.current = setInterval(() => {
                 const t = target.getCurrentTime();
                 saveProgress({ bookId, bookTitle, bookAuthor, imageUrl, timestamp: t, savedAt: Date.now() });
                 syncToDb(bookId, t);
+                if (!has25Ref.current) {
+                  const dur = target.getDuration();
+                  if (dur > 0 && t / dur >= 0.25) {
+                    has25Ref.current = true;
+                    posthog.capture('play_25_percent', { bookId, title: bookTitle });
+                  }
+                }
               }, SAVE_INTERVAL_MS);
             } else {
               clearInterval(intervalRef.current);
               const t = target.getCurrentTime();
+              if (data === 0 /* ENDED */) {
+                posthog.capture('play_finished', { bookId, title: bookTitle });
+              }
               if (t > 5) {
                 saveProgress({ bookId, bookTitle, bookAuthor, imageUrl, timestamp: t, savedAt: Date.now() });
                 syncToDb(bookId, t);

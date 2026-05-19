@@ -22,9 +22,15 @@ export async function generateMetadata({ params }: { params: { locale: string } 
 
 export default async function LandingPage() {
   const books = await prisma.audiobook.findMany({
-    where: { isPublished: true },
-    take: 4,
-    orderBy: { createdAt: 'desc' },
+    where: {
+      isPublished: true,
+      OR: [
+        { title: { contains: '1984' } },
+        { title: { contains: '451' } },
+        { title: { contains: 'Шоушенк' } },
+      ],
+    },
+    take: 3,
     select: {
       id: true,
       title: true,

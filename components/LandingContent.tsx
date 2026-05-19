@@ -30,54 +30,6 @@ interface BookData {
   duration: string;
 }
 
-/* ─── tiny UI mockups ─────────────────────────────────── */
-function MockPlayer() {
-  return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm w-full">
-      <div className="mb-3 flex items-center gap-2">
-        <div className="h-2 w-2 rounded-full bg-red-400" />
-        <div className="h-2 w-16 rounded bg-white/20" />
-      </div>
-      <div className="rounded-lg bg-black/40 aspect-video flex items-center justify-center mb-3">
-        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-          <Play className="h-5 w-5 text-white fill-white ml-0.5" />
-        </div>
-      </div>
-      <div className="space-y-1.5">
-        <div className="h-1.5 w-3/4 rounded bg-white/20" />
-        <div className="h-1.5 w-1/2 rounded bg-white/10" />
-        <div className="mt-2 h-1 w-full rounded-full bg-white/10 overflow-hidden">
-          <div className="h-full w-2/5 rounded-full bg-blue-400/70" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MockMobile() {
-  return (
-    <div className="mx-auto w-28 rounded-[20px] border-2 border-white/15 bg-white/5 p-2 backdrop-blur-sm">
-      <div className="rounded-[14px] bg-black/60 overflow-hidden">
-        <div className="px-2 pt-2 pb-1">
-          <div className="h-1.5 w-12 mx-auto rounded bg-white/20 mb-2" />
-          <img
-            src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=120&h=80&fit=crop"
-            alt=""
-            className="w-full rounded-lg opacity-70"
-          />
-          <div className="mt-2 space-y-1">
-            <div className="h-1.5 w-full rounded bg-white/20" />
-            <div className="h-1.5 w-3/4 rounded bg-white/10" />
-          </div>
-          <div className="mt-2 h-5 w-full rounded-md bg-blue-500/50 flex items-center justify-center">
-            <div className="h-1.5 w-10 rounded bg-white/60" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ─── Feature card ─────────────────────────────────────── */
 function FeatureCard({
   icon,
@@ -135,13 +87,13 @@ function PublicBookCard({ book, onListen }: { book: BookData; onListen: () => vo
             src={book.imageUrl || '/placeholder.jpg'}
             alt={book.title}
             fill
-            className="object-contain"
+            className="object-cover"
             sizes="(max-width: 640px) 50vw, 25vw"
           />
         </div>
 
         {/* Row 2 — info */}
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 overflow-hidden">
           <h3 className="font-semibold text-sm text-white leading-tight line-clamp-2 min-h-[2.5em]">{book.title}</h3>
           <p className="text-xs text-white/55 truncate">{book.author}</p>
           <div className="flex items-center justify-between pt-0.5">
@@ -251,7 +203,7 @@ export function LandingContent({ books }: { books: BookData[] }) {
             <h2 className="mb-8 text-center text-2xl font-bold text-white sm:text-3xl">
               {t('popular_books')}
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {books.map((book) => (
                 <PublicBookCard
                   key={book.id}
@@ -286,22 +238,6 @@ export function LandingContent({ books }: { books: BookData[] }) {
               title={t('why_3_title')}
               desc={t('why_3_desc')}
             />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Mockups ──────────────────────────────────────── */}
-      <section className="relative py-16 px-4">
-        <div className="mx-auto max-w-4xl">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <div className="w-full sm:w-64 animate-fade-in-up delay-200">
-              <MockPlayer />
-              <p className="mt-2 text-center text-xs text-white/30">Сторінка з плеєром</p>
-            </div>
-            <div className="flex flex-col items-center animate-fade-in-up delay-300">
-              <MockMobile />
-              <p className="mt-2 text-center text-xs text-white/30">Мобільна версія</p>
-            </div>
           </div>
         </div>
       </section>

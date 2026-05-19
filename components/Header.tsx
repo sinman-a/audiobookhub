@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { signOut } from 'next-auth/react';
-import { BookMarked, LogOut, BookHeadphones } from 'lucide-react';
+import { BookMarked, LogOut, BookHeadphones, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { InstallPWA } from './InstallPWA';
@@ -52,11 +52,19 @@ export function Header({ showAdminLink }: HeaderProps) {
             </Button>
           </Link>
           {showAdminLink && (
-            <Link href={`/${locale}/admin`}>
-              <Button variant="ghost" size="sm">
-                {t('admin_panel')}
-              </Button>
-            </Link>
+            <>
+              <Link href={`/${locale}/admin/analytics`}>
+                <Button variant="ghost" size="sm" className="gap-1.5">
+                  <BarChart2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">{t('analytics')}</span>
+                </Button>
+              </Link>
+              <Link href={`/${locale}/admin`}>
+                <Button variant="ghost" size="sm">
+                  {t('admin_panel')}
+                </Button>
+              </Link>
+            </>
           )}
           <InstallPWA />
           <LanguageSwitcher />
