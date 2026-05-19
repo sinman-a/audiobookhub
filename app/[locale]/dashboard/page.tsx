@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const [books, setBooks] = useState<Audiobook[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   const [query, setQuery] = useState('');
@@ -57,10 +58,12 @@ export default function DashboardPage() {
     Promise.all([
       fetch('/api/audiobooks').then((r) => r.json()),
       fetch('/api/progress').then((r): Promise<Record<string, number>> => r.ok ? r.json() : Promise.resolve({})),
+      fetch('/api/library').then((r) => r.ok ? r.json() : Promise.resolve({ favorites: [] })),
     ])
-      .then(([booksData, progressData]) => {
+      .then(([booksData, progressData, libraryData]) => {
         setBooks(Array.isArray(booksData) ? booksData : []);
         setProgressMap(progressData ?? {});
+        setFavoriteIds(new Set<string>((libraryData?.favorites ?? []).map((b: { id: string }) => b.id)));
       })
       .catch(() => { setBooks([]); setProgressMap({}); })
       .finally(() => setLoading(false));
@@ -321,6 +324,7 @@ export default function DashboardPage() {
                           book={book}
                           progressSeconds={progressMap[book.id]}
                           totalSeconds={parseDurationSeconds(book.duration)}
+                          isFavorite={favoriteIds.has(book.id)}
                         />
                       ))}
                     </div>

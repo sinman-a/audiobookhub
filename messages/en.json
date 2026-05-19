@@ -99,5 +99,14 @@
   "sort_longest": "Longest",
   "popular_books": "Popular Books",
   "listen_free": "Listen Free",
-  "register_to_listen": "Sign up in 10 seconds to start listening"
+  "register_to_listen": "Sign up in 10 seconds to start listening",
+  "library": "Library",
+  "library_in_progress": "In Progress",
+  "library_favorites": "Favorites",
+  "library_finished": "Finished",
+  "library_empty_in_progress": "You haven't started any books yet",
+  "library_empty_favorites": "You haven't favorited any books yet",
+  "library_empty_finished": "You haven't finished any books yet",
+  "add_to_favorites": "Add to Favorites",
+  "remove_from_favorites": "Remove from Favorites"
 }

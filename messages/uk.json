@@ -99,5 +99,14 @@
   "sort_longest": "Найдовші",
   "popular_books": "Популярні книги",
   "listen_free": "Слухати безкоштовно",
-  "register_to_listen": "Зареєструйся за 10 секунд, щоб слухати цю книгу"
+  "register_to_listen": "Зареєструйся за 10 секунд, щоб слухати цю книгу",
+  "library": "Бібліотека",
+  "library_in_progress": "В процесі",
+  "library_favorites": "Вибране",
+  "library_finished": "Прослухано",
+  "library_empty_in_progress": "Ви ще не починали жодної книги",
+  "library_empty_favorites": "Ви ще не додали жодної книги до вибраного",
+  "library_empty_finished": "Ви ще не завершили жодної книги",
+  "add_to_favorites": "Додати до вибраного",
+  "remove_from_favorites": "Видалити з вибраного"
 }
