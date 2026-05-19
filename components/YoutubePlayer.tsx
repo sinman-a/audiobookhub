@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { getProgress, saveProgress } from '@/lib/playback';
+import { getProgress, saveProgress, syncToDb } from '@/lib/playback';
 
 /* ── Minimal YouTube IFrame API types ── */
 interface YTPlayer {
@@ -69,17 +69,16 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
             if (data === 1 /* PLAYING */) {
               clearInterval(intervalRef.current);
               intervalRef.current = setInterval(() => {
-                saveProgress({
-                  bookId, bookTitle, bookAuthor, imageUrl,
-                  timestamp: target.getCurrentTime(),
-                  savedAt: Date.now(),
-                });
+                const t = target.getCurrentTime();
+                saveProgress({ bookId, bookTitle, bookAuthor, imageUrl, timestamp: t, savedAt: Date.now() });
+                syncToDb(bookId, t);
               }, SAVE_INTERVAL_MS);
             } else {
               clearInterval(intervalRef.current);
               const t = target.getCurrentTime();
               if (t > 5) {
                 saveProgress({ bookId, bookTitle, bookAuthor, imageUrl, timestamp: t, savedAt: Date.now() });
+                syncToDb(bookId, t);
               }
             }
           },
@@ -101,6 +100,8 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
     return () => {
       destroyed = true;
       clearInterval(intervalRef.current);
+      const finalTime = playerRef.current?.getCurrentTime() ?? 0;
+      if (finalTime > 5) syncToDb(bookId, finalTime);
       try { playerRef.current?.destroy(); } catch { /* ignore */ }
       playerRef.current = null;
     };

@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { BookOpen, ChevronDown, Folder, Search, X } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { BookGlowCard } from '@/components/BookGlowCard';
+import { parseDurationSeconds } from '@/lib/playback';
 import { BookCardSkeleton } from '@/components/BookCardSkeleton';
 import { ContinueListening } from '@/components/ContinueListening';
 import { Input } from '@/components/ui/input';
@@ -31,16 +32,14 @@ interface Audiobook {
 }
 
 function parseDurationHours(duration: string): number {
-  if (!duration) return 0;
-  const parts = duration.split(':').map(Number);
-  if (parts.length === 3) return parts[0] + parts[1] / 60 + parts[2] / 3600;
-  return 0;
+  return parseDurationSeconds(duration) / 3600;
 }
 
 export default function DashboardPage() {
   const t = useTranslations();
   const { data: session } = useSession();
   const [books, setBooks] = useState<Audiobook[]>([]);
+  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   const [query, setQuery] = useState('');
@@ -55,10 +54,15 @@ export default function DashboardPage() {
   const isAdmin = session?.user?.role === 'ADMIN';
 
   useEffect(() => {
-    fetch('/api/audiobooks')
-      .then((r) => r.json())
-      .then((data) => setBooks(Array.isArray(data) ? data : []))
-      .catch(() => setBooks([]))
+    Promise.all([
+      fetch('/api/audiobooks').then((r) => r.json()),
+      fetch('/api/progress').then((r) => r.ok ? r.json() : {}),
+    ])
+      .then(([booksData, progressData]) => {
+        setBooks(Array.isArray(booksData) ? booksData : []);
+        setProgressMap(progressData && typeof progressData === 'object' ? progressData : {});
+      })
+      .catch(() => { setBooks([]); setProgressMap({}); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -312,7 +316,12 @@ export default function DashboardPage() {
                   <div className="min-h-0">
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pt-5">
                       {genreBooks.map((book) => (
-                        <BookGlowCard key={book.id} book={book} />
+                        <BookGlowCard
+                          key={book.id}
+                          book={book}
+                          progressSeconds={progressMap[book.id]}
+                          totalSeconds={parseDurationSeconds(book.duration)}
+                        />
                       ))}
                     </div>
                   </div>

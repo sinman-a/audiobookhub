@@ -35,6 +35,21 @@ export function getRecentProgress(): PlaybackProgress | null {
   }
 }
 
+export function parseDurationSeconds(duration: string): number {
+  if (!duration) return 0;
+  const parts = duration.split(':').map(Number);
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return 0;
+}
+
+export function syncToDb(audiobookId: string, seconds: number): void {
+  fetch('/api/progress', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ audiobookId, seconds }),
+  }).catch(() => {});
+}
+
 export function formatTime(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Clock, PlayCircle } from 'lucide-react';
 import { GlowCard } from '@/components/ui/spotlight-card';
+import { formatTime } from '@/lib/playback';
 
 interface Audiobook {
   id: string;
@@ -31,9 +32,21 @@ function glowFor(genre: string): 'blue' | 'purple' | 'green' | 'red' | 'orange' 
   return GENRE_COLOR[genre] ?? 'blue';
 }
 
-export function BookGlowCard({ book }: { book: Audiobook }) {
+interface Props {
+  book: Audiobook;
+  progressSeconds?: number;
+  totalSeconds?: number;
+}
+
+export function BookGlowCard({ book, progressSeconds, totalSeconds }: Props) {
   const t = useTranslations();
   const locale = useLocale();
+
+  const hasProgress = !!progressSeconds && progressSeconds > 30;
+  const progressPct =
+    hasProgress && totalSeconds && totalSeconds > 0
+      ? Math.min(100, (progressSeconds! / totalSeconds) * 100)
+      : 0;
 
   return (
     <Link href={`/${locale}/book/${book.id}`} className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl">
@@ -60,7 +73,12 @@ export function BookGlowCard({ book }: { book: Audiobook }) {
           </h3>
           <p className="text-xs text-white/55 truncate">{book.author}</p>
           <div className="flex items-center justify-between pt-0.5">
-            {book.duration ? (
+            {hasProgress ? (
+              <span className="flex items-center gap-1 text-xs text-blue-400">
+                <PlayCircle className="h-3 w-3" />
+                {formatTime(progressSeconds!)}
+              </span>
+            ) : book.duration ? (
               <span className="flex items-center gap-1 text-xs text-white/40">
                 <Clock className="h-3 w-3" />
                 {book.duration}
@@ -74,6 +92,16 @@ export function BookGlowCard({ book }: { book: Audiobook }) {
             </span>
           </div>
         </div>
+
+        {/* Progress bar — shown at bottom of card when progress > 30s */}
+        {progressPct > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/10 rounded-b-2xl overflow-hidden pointer-events-none">
+            <div
+              className="h-full bg-blue-500/80"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        )}
       </GlowCard>
     </Link>
   );

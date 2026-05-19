@@ -9,28 +9,43 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String         @id @default(cuid())
+  email     String         @unique
   password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+  role      Role           @default(USER)
+  createdAt DateTime       @default(now())
+  progress  UserProgress[]
 }
 
 model Audiobook {
-  id               String   @id @default(cuid())
+  id               String         @id @default(cuid())
   title            String
   author           String
   imageUrl         String
   youtubeId        String
-  descriptionShort String   @db.Text
-  descriptionLong  String   @db.Text
+  descriptionShort String         @db.Text
+  descriptionLong  String         @db.Text
   duration         String
   genre            String
   language         String
   year             Int
-  isPublished      Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  isPublished      Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  progress         UserProgress[]
+}
+
+model UserProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  audiobookId String
+  seconds     Float
+  updatedAt   DateTime  @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  audiobook Audiobook @relation(fields: [audiobookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, audiobookId])
 }
 
 enum Role {
