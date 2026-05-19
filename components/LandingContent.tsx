@@ -156,7 +156,7 @@ function PublicBookCard({ book, onListen }: { book: BookData; onListen: () => vo
               className="flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors"
             >
               <PlayCircle className="h-3.5 w-3.5" />
-              {t('listen_free')}
+              {t('listen')}
             </button>
           </div>
         </div>
