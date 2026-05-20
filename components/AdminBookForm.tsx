@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useId } from 'react';
+import React, { useState, useEffect, useId } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -84,6 +84,15 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [loading, setLoading] = useState(false);
+  const [fetchedGenres, setFetchedGenres] = useState<GenreOption[]>(genres);
+
+  useEffect(() => {
+    if (!open) return;
+    fetch('/api/admin/genres')
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setFetchedGenres(data); })
+      .catch(() => {});
+  }, [open]);
 
   const set = <K extends keyof FormData>(field: K, value: FormData[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -191,8 +200,8 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
             <Select value={form.genre ?? ''} onValueChange={(v) => set('genre', v)}>
               <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
               <SelectContent>
-                {genres.length > 0 ? (
-                  genres.map((g) => (
+                {fetchedGenres.length > 0 ? (
+                  fetchedGenres.map((g) => (
                     <SelectItem key={g.id} value={g.name}>{g.name}</SelectItem>
                   ))
                 ) : (
