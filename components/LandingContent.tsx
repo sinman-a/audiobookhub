@@ -180,10 +180,9 @@ export function LandingContent({
             <Button
               size="lg"
               onClick={() => openModal('register')}
-              className="gap-2 bg-blue-500 px-8 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/40 transition-all duration-300 text-base font-semibold rounded-full"
+              className="bg-blue-500 px-8 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/40 transition-all duration-300 text-base font-semibold rounded-full"
             >
               {text('landing_cta_primary')}
-              <ArrowRight className="h-5 w-5" />
             </Button>
           </LiquidBorder>
           <LiquidBorder>
