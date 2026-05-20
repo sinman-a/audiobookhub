@@ -8,6 +8,7 @@ import { authOptions } from '@/lib/auth';
 import dynamic from 'next/dynamic';
 import { Providers } from '@/components/Providers';
 import { PostHogProvider } from '@/components/PostHogProvider';
+import { OfflineBanner } from '@/components/OfflineBanner';
 
 const AuroraBackground = dynamic(
   () => import('@/components/ui/aurora-background').then((m) => ({ default: m.AuroraBackground })),
@@ -57,6 +58,7 @@ export default async function LocaleLayout({
         <PostHogProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
             <Providers session={session}>
+              <OfflineBanner />
               {children}
             </Providers>
           </NextIntlClientProvider>

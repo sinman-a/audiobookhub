@@ -156,5 +156,7 @@
   "landing_section_popular_books": "Popular Books",
   "landing_section_why_us": "Why Us",
   "landing_section_final_cta": "Final CTA",
-  "add": "Add"
+  "add": "Add",
+
+  "offline_status": "Offline. Connect to listen"
 }
