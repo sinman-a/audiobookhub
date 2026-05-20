@@ -20,27 +20,25 @@ export async function generateMetadata({ params }: { params: { locale: string } 
   };
 }
 
-export default async function LandingPage() {
-  const books = await prisma.audiobook.findMany({
-    where: {
-      isPublished: true,
-      OR: [
-        { title: { contains: '1984' } },
-        { title: { contains: '451' } },
-        { title: { contains: 'Шоушенк' } },
-      ],
-    },
-    take: 3,
-    select: {
-      id: true,
-      title: true,
-      author: true,
-      imageUrl: true,
-      descriptionShort: true,
-      genre: true,
-      duration: true,
-    },
-  });
+export default async function LandingPage({ params }: { params: { locale: string } }) {
+  const [books, config] = await Promise.all([
+    prisma.audiobook.findMany({
+      where: { isPublished: true, isFeatured: true },
+      take: 3,
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        imageUrl: true,
+        descriptionShort: true,
+        genre: true,
+        duration: true,
+      },
+    }),
+    prisma.landingConfig.findUnique({ where: { locale: params.locale } }).catch(() => null),
+  ]);
 
-  return <LandingContent books={books} />;
+  const overrides = (config?.content ?? {}) as Record<string, string>;
+
+  return <LandingContent books={books} overrides={overrides} />;
 }

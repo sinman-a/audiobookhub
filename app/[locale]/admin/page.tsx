@@ -10,6 +10,7 @@ import { AdminBookTable } from '@/components/AdminBookTable';
 import { AdminBookForm } from '@/components/AdminBookForm';
 import { AdminGenreManager } from '@/components/AdminGenreManager';
 import { AdminCategoryManager } from '@/components/AdminCategoryManager';
+import { AdminLandingManager } from '@/components/AdminLandingManager';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Audiobook {
@@ -32,7 +33,7 @@ interface GenreOption {
   name: string;
 }
 
-type Tab = 'books' | 'genres' | 'categories';
+type Tab = 'books' | 'genres' | 'categories' | 'landing';
 
 export default function AdminPage() {
   const t = useTranslations();
@@ -79,6 +80,7 @@ export default function AdminPage() {
     { id: 'books',      label: t('admin_tab_books') },
     { id: 'genres',     label: t('admin_tab_genres') },
     { id: 'categories', label: t('admin_tab_categories') },
+    { id: 'landing',    label: t('admin_tab_landing') },
   ];
 
   return (
@@ -138,6 +140,9 @@ export default function AdminPage() {
 
         {/* Categories tab */}
         {tab === 'categories' && <AdminCategoryManager />}
+
+        {/* Landing tab */}
+        {tab === 'landing' && <AdminLandingManager />}
       </main>
     </div>
   );

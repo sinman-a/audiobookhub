@@ -31,6 +31,7 @@ model Audiobook {
   language         String
   year             Int
   isPublished      Boolean        @default(false)
+  isFeatured       Boolean        @default(false)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   progress         UserProgress[]
@@ -75,6 +76,12 @@ model Genre {
   categoryId String?
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   createdAt  DateTime  @default(now())
+}
+
+model LandingConfig {
+  id      String @id @default(cuid())
+  locale  String @unique
+  content Json
 }
 
 enum Role {

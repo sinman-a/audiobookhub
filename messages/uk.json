@@ -139,5 +139,22 @@
   "genre_saved": "Жанр збережено",
   "category_saved": "Категорію збережено",
   "genre_deleted": "Жанр видалено",
-  "category_deleted": "Категорію видалено"
+  "category_deleted": "Категорію видалено",
+
+  "admin_tab_landing": "Лендінг",
+  "landing_featured_books": "Популярні книги",
+  "landing_featured_hint": "Оберіть книги для відображення в секції «Популярні книги» на лендингу (до 3 шт.).",
+  "landing_no_featured": "Книги ще не обрано",
+  "landing_select_book": "Оберіть книгу...",
+  "landing_book_added": "Книгу додано на лендінг",
+  "landing_book_removed": "Книгу прибрано з лендінгу",
+  "landing_text_content": "Текст лендінгу",
+  "landing_text_hint": "Замінює переклад за замовчуванням для кожної мови. Залиште порожнім — буде використано стандартний переклад.",
+  "landing_placeholder_hint": "залиште порожнім для стандарту",
+  "landing_config_saved": "Контент збережено",
+  "landing_section_hero": "Секція Герой",
+  "landing_section_popular_books": "Популярні книги",
+  "landing_section_why_us": "Чому ми",
+  "landing_section_final_cta": "Фінальний CTA",
+  "add": "Додати"
 }

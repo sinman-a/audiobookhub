@@ -118,8 +118,15 @@ function PublicBookCard({ book, onListen }: { book: BookData; onListen: () => vo
 }
 
 /* ─── Page ─────────────────────────────────────────────── */
-export function LandingContent({ books }: { books: BookData[] }) {
+export function LandingContent({
+  books,
+  overrides = {},
+}: {
+  books: BookData[];
+  overrides?: Record<string, string>;
+}) {
   const t = useTranslations();
+  const text = (key: string) => overrides[key] || t(key as Parameters<typeof t>[0]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'login' | 'register'>('register');
 
@@ -154,18 +161,18 @@ export function LandingContent({ books }: { books: BookData[] }) {
       <section id="main-content" className="relative min-h-screen flex flex-col items-center justify-center text-center px-4 pt-24 pb-16">
         <div className="animate-fade-in mb-6 inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 text-sm text-blue-400">
           <Headphones className="h-4 w-4" />
-          {t('landing_badge')}
+          {text('landing_badge')}
         </div>
 
         <h1 className="animate-fade-in-up delay-100 mb-6 max-w-3xl text-5xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
-          {t('landing_title')}{' '}
+          {text('landing_title')}{' '}
           <span className="animate-fade-in-up delay-200 block text-gradient-animate">
-            {t('landing_title_accent')}
+            {text('landing_title_accent')}
           </span>
         </h1>
 
         <p className="animate-fade-in-up delay-300 mb-10 max-w-2xl text-lg text-white/60 sm:text-xl leading-relaxed">
-          {t('landing_subtitle')}
+          {text('landing_subtitle')}
         </p>
 
         <div className="animate-fade-in-up delay-400 flex flex-wrap items-center justify-center gap-3 mb-4">
@@ -175,7 +182,7 @@ export function LandingContent({ books }: { books: BookData[] }) {
               onClick={() => openModal('register')}
               className="gap-2 bg-blue-500 px-8 text-white hover:bg-blue-400 shadow-lg shadow-blue-500/40 transition-all duration-300 text-base font-semibold rounded-full"
             >
-              {t('landing_cta_primary')}
+              {text('landing_cta_primary')}
               <ArrowRight className="h-5 w-5" />
             </Button>
           </LiquidBorder>
@@ -185,14 +192,14 @@ export function LandingContent({ books }: { books: BookData[] }) {
               onClick={() => openModal('login')}
               className="gap-2 bg-[#020617] px-8 text-white hover:bg-[#0a1628] transition-all duration-300 text-base rounded-full"
             >
-              {t('landing_cta_secondary')}
+              {text('landing_cta_secondary')}
             </Button>
           </LiquidBorder>
         </div>
 
         <p className="animate-fade-in-up delay-500 text-xs text-white/30 flex items-center gap-1.5">
           <Check className="h-3.5 w-3.5 text-green-400" />
-          {t('landing_no_cc')}
+          {text('landing_no_cc')}
         </p>
       </section>
 
@@ -201,7 +208,7 @@ export function LandingContent({ books }: { books: BookData[] }) {
         <section className="relative py-16 px-4">
           <div className="mx-auto max-w-5xl">
             <h2 className="mb-8 text-center text-2xl font-bold text-white sm:text-3xl">
-              {t('popular_books')}
+              {text('popular_books')}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {books.map((book) => (
@@ -220,23 +227,23 @@ export function LandingContent({ books }: { books: BookData[] }) {
       <section className="relative py-24 px-4">
         <div className="mx-auto max-w-5xl">
           <h2 className="mb-12 text-center text-3xl font-bold text-white sm:text-4xl">
-            {t('why_us_title')}
+            {text('why_us_title')}
           </h2>
           <div className="grid gap-6 sm:grid-cols-3">
             <FeatureCard
               icon={<Library className="h-6 w-6" />}
-              title={t('why_1_title')}
-              desc={t('why_1_desc')}
+              title={text('why_1_title')}
+              desc={text('why_1_desc')}
             />
             <FeatureCard
               icon={<Play className="h-6 w-6" />}
-              title={t('why_2_title')}
-              desc={t('why_2_desc')}
+              title={text('why_2_title')}
+              desc={text('why_2_desc')}
             />
             <FeatureCard
               icon={<Languages className="h-6 w-6" />}
-              title={t('why_3_title')}
-              desc={t('why_3_desc')}
+              title={text('why_3_title')}
+              desc={text('why_3_desc')}
             />
           </div>
         </div>
@@ -250,10 +257,10 @@ export function LandingContent({ books }: { books: BookData[] }) {
           </div>
 
           <h2 className="mb-4 text-3xl font-extrabold text-white sm:text-4xl">
-            {t('final_cta_title')}
+            {text('final_cta_title')}
           </h2>
           <p className="mb-8 text-white/55 text-lg">
-            {t('final_cta_desc')}
+            {text('final_cta_desc')}
           </p>
           <LiquidBorder>
             <Button
@@ -261,13 +268,13 @@ export function LandingContent({ books }: { books: BookData[] }) {
               onClick={() => openModal('register')}
               className="gap-2 bg-blue-500 px-10 text-white hover:bg-blue-400 shadow-xl shadow-blue-500/30 transition-all duration-300 text-base font-semibold rounded-full"
             >
-              {t('final_cta_btn')}
+              {text('final_cta_btn')}
               <ArrowRight className="h-5 w-5" />
             </Button>
           </LiquidBorder>
           <p className="mt-4 text-xs text-white/30 flex items-center justify-center gap-1.5">
             <Check className="h-3.5 w-3.5 text-green-400" />
-            {t('landing_no_cc')}
+            {text('landing_no_cc')}
           </p>
         </div>
       </section>

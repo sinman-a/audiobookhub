@@ -139,5 +139,22 @@
   "genre_saved": "Genre saved",
   "category_saved": "Category saved",
   "genre_deleted": "Genre deleted",
-  "category_deleted": "Category deleted"
+  "category_deleted": "Category deleted",
+
+  "admin_tab_landing": "Landing",
+  "landing_featured_books": "Featured Books",
+  "landing_featured_hint": "Select books to display in the \"Popular Books\" section on the landing page (up to 3).",
+  "landing_no_featured": "No books selected yet",
+  "landing_select_book": "Choose a book...",
+  "landing_book_added": "Book added to landing",
+  "landing_book_removed": "Book removed from landing",
+  "landing_text_content": "Landing Page Text",
+  "landing_text_hint": "Override default text for each locale. Leave blank to use the default translation.",
+  "landing_placeholder_hint": "leave blank for default",
+  "landing_config_saved": "Content saved",
+  "landing_section_hero": "Hero Section",
+  "landing_section_popular_books": "Popular Books",
+  "landing_section_why_us": "Why Us",
+  "landing_section_final_cta": "Final CTA",
+  "add": "Add"
 }
