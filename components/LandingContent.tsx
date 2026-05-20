@@ -265,10 +265,9 @@ export function LandingContent({
             <Button
               size="lg"
               onClick={() => openModal('register')}
-              className="gap-2 bg-blue-500 px-10 text-white hover:bg-blue-400 shadow-xl shadow-blue-500/30 transition-all duration-300 text-base font-semibold rounded-full"
+              className="bg-blue-500 px-10 text-white hover:bg-blue-400 shadow-xl shadow-blue-500/30 transition-all duration-300 text-base font-semibold rounded-full"
             >
               {text('final_cta_btn')}
-              <ArrowRight className="h-5 w-5" />
             </Button>
           </LiquidBorder>
           <p className="mt-4 text-xs text-white/30 flex items-center justify-center gap-1.5">
