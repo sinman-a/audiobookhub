@@ -124,13 +124,14 @@ export default function AdminPage() {
                 ))}
               </div>
             ) : (
-              <AdminBookTable books={books} onRefresh={fetchBooks} genres={genres} />
+              <AdminBookTable books={books} onRefresh={fetchBooks} genres={genres} allBooks={books.map(b => ({ id: b.id, title: b.title }))} />
             )}
             <AdminBookForm
               open={addOpen}
               onClose={() => setAddOpen(false)}
               onSuccess={fetchBooks}
               genres={genres}
+              allBooks={books.map(b => ({ id: b.id, title: b.title }))}
             />
           </>
         )}

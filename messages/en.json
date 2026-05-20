@@ -158,5 +158,14 @@
   "landing_section_final_cta": "Final CTA",
   "add": "Add",
 
-  "offline_status": "Offline. Connect to listen"
+  "offline_status": "Offline. Connect to listen",
+
+  "rate_title": "How was this book?",
+  "rate_submit": "Rate",
+  "rate_skip": "Later",
+  "rate_thanks": "Thanks for rating!",
+  "similar_books": "Similar Books",
+  "related_books": "Related Books",
+  "related_books_hint": "Up to 4 books shown in the 'Similar' block",
+  "rating_avg": "Average rating"
 }

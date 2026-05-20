@@ -27,6 +27,7 @@ interface Audiobook {
   language: string;
   year: number;
   isPublished: boolean;
+  relatedIds?: string[];
 }
 
 interface GenreOption {
@@ -40,6 +41,7 @@ interface Props {
   onSuccess: () => void;
   book?: Audiobook | null;
   genres?: GenreOption[];
+  allBooks?: { id: string; title: string }[];
 }
 
 // Only title and youtubeUrl are required — everything else is optional
@@ -55,11 +57,12 @@ const formSchema = z.object({
   language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100),
   isPublished: z.boolean(),
+  relatedIds: z.string().array().default([]),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-export function AdminBookForm({ open, onClose, onSuccess, book, genres = [] }: Props) {
+export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], allBooks = [] }: Props) {
   const t = useTranslations();
   const isEdit = !!book;
 
@@ -76,13 +79,22 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [] }: P
     language: book?.language ?? '',
     year: book?.year ?? new Date().getFullYear(),
     isPublished: book?.isPublished ?? false,
+    relatedIds: book?.relatedIds ?? [],
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [loading, setLoading] = useState(false);
 
-  const set = (field: keyof FormData, value: string | number | boolean) =>
+  const set = <K extends keyof FormData>(field: K, value: FormData[K]) =>
     setForm((prev) => ({ ...prev, [field]: value }));
+
+  const setRelated = (idx: number, bookId: string) => {
+    setForm((prev) => {
+      const next = ['', '', '', ''].map((_, i) => prev.relatedIds[i] ?? '');
+      next[idx] = bookId;
+      return { ...prev, relatedIds: next.filter(Boolean) };
+    });
+  };
 
   const validate = () => {
     try {
@@ -214,6 +226,41 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [] }: P
               max={2100}
             />
           </Field>
+
+          {/* Related books for "Similar" block */}
+          {allBooks.length > 0 && (
+            <div className="sm:col-span-2 space-y-2">
+              <Label>{t('related_books')}</Label>
+              <p className="text-xs text-muted-foreground">{t('related_books_hint')}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[0, 1, 2, 3].map((idx) => (
+                  <Select
+                    key={idx}
+                    value={form.relatedIds[idx] ?? ''}
+                    onValueChange={(v) => setRelated(idx, v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={`— ${idx + 1}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">—</SelectItem>
+                      {allBooks
+                        .filter(
+                          (b) =>
+                            b.id !== book?.id &&
+                            !form.relatedIds.filter((_, i) => i !== idx).includes(b.id),
+                        )
+                        .map((b) => (
+                          <SelectItem key={b.id} value={b.id}>
+                            {b.title}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Publish toggle — prominent placement */}
           <div className="sm:col-span-2 flex items-center justify-between rounded-lg border p-3 bg-muted/30">

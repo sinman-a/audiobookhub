@@ -40,20 +40,25 @@ interface Props {
   bookTitle: string;
   bookAuthor: string;
   imageUrl: string;
+  onReach80?: () => void;
 }
 
 const SAVE_INTERVAL_MS = 10_000;
 
-export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageUrl }: Props) {
+export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageUrl, onReach80 }: Props) {
   const divRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YTPlayer | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
   const hasStartedRef = useRef(false);
   const has25Ref = useRef(false);
+  const has80Ref = useRef(false);
+  const on80Ref = useRef(onReach80);
+  useEffect(() => { on80Ref.current = onReach80; });
 
   useEffect(() => {
     hasStartedRef.current = false;
     has25Ref.current = false;
+    has80Ref.current = false;
     let destroyed = false;
 
     const savedProgress = getProgress(bookId);
@@ -82,11 +87,18 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
                 const t = target.getCurrentTime();
                 saveProgress({ bookId, bookTitle, bookAuthor, imageUrl, timestamp: t, savedAt: Date.now() });
                 syncToDb(bookId, t);
-                if (!has25Ref.current) {
+                if (!has25Ref.current || !has80Ref.current) {
                   const dur = target.getDuration();
-                  if (dur > 0 && t / dur >= 0.25) {
-                    has25Ref.current = true;
-                    posthog.capture('play_25_percent', { bookId, title: bookTitle });
+                  if (dur > 0) {
+                    const pct = t / dur;
+                    if (!has25Ref.current && pct >= 0.25) {
+                      has25Ref.current = true;
+                      posthog.capture('play_25_percent', { bookId, title: bookTitle });
+                    }
+                    if (!has80Ref.current && pct >= 0.80) {
+                      has80Ref.current = true;
+                      on80Ref.current?.();
+                    }
                   }
                 }
               }, SAVE_INTERVAL_MS);

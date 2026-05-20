@@ -158,5 +158,14 @@
   "landing_section_final_cta": "Фінальний CTA",
   "add": "Додати",
 
-  "offline_status": "Офлайн. Підключись щоб слухати"
+  "offline_status": "Офлайн. Підключись щоб слухати",
+
+  "rate_title": "Як тобі ця книга?",
+  "rate_submit": "Оцінити",
+  "rate_skip": "Пізніше",
+  "rate_thanks": "Дякуємо за оцінку!",
+  "similar_books": "Схожі книги",
+  "related_books": "Пов'язані книги",
+  "related_books_hint": "До 4 книг для блоку «Схожі»",
+  "rating_avg": "Середня оцінка"
 }

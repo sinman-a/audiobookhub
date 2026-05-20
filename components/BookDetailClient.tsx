@@ -1,15 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import posthog from 'posthog-js';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useSession } from 'next-auth/react';
-import { ArrowLeft, ArrowRight, Clock, Globe } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Clock, Globe, Star } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { YoutubePlayer } from '@/components/YoutubePlayer';
 import { AuthModal } from '@/components/AuthModal';
+import { RatingModal } from '@/components/RatingModal';
+import { SimilarBooks } from '@/components/SimilarBooks';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -28,20 +30,60 @@ interface Audiobook {
   isPublished: boolean;
 }
 
+interface SimilarBook {
+  id: string;
+  title: string;
+  author: string;
+  imageUrl: string;
+  genre: string;
+  duration: string;
+}
+
 interface Props {
   book: Audiobook;
   isAuthenticated: boolean;
+  similarBooks: SimilarBook[];
+  avgRating: number | null;
+  ratingCount: number;
 }
 
-export function BookDetailClient({ book, isAuthenticated }: Props) {
+export function BookDetailClient({ book, isAuthenticated, similarBooks, avgRating, ratingCount }: Props) {
   const t = useTranslations();
   const locale = useLocale();
   const { data: session } = useSession();
   const [modalOpen, setModalOpen] = useState(false);
+  const [ratingOpen, setRatingOpen] = useState(false);
+  const [hasRated, setHasRated] = useState(false);
+  const ratingModalShown = useRef(false);
 
   useEffect(() => {
     posthog.capture('book_viewed', { bookId: book.id, title: book.title, genre: book.genre });
   }, [book.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    fetch(`/api/ratings?audiobookId=${book.id}`)
+      .then((r) => r.json())
+      .then((d) => { if (d.stars !== null) setHasRated(true); })
+      .catch(() => {});
+  }, [book.id, isAuthenticated]);
+
+  const handleReach80 = () => {
+    if (!hasRated && !ratingModalShown.current) {
+      ratingModalShown.current = true;
+      setRatingOpen(true);
+    }
+  };
+
+  const handleRate = async (stars: number) => {
+    setHasRated(true);
+    fetch('/api/ratings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audiobookId: book.id, stars }),
+    }).catch(() => {});
+    setTimeout(() => setRatingOpen(false), 1500);
+  };
 
   const isAdmin = session?.user?.role === 'ADMIN';
 
@@ -87,6 +129,14 @@ export function BookDetailClient({ book, isAuthenticated }: Props) {
               <Badge variant="outline">{book.year}</Badge>
             </div>
 
+            {ratingCount > 0 && avgRating !== null && (
+              <div className="flex items-center gap-1.5 text-sm text-yellow-400">
+                <Star className="h-4 w-4 fill-yellow-400" />
+                <span className="font-medium">{avgRating.toFixed(1)}</span>
+                <span className="text-white/40">({ratingCount})</span>
+              </div>
+            )}
+
             <p className="text-muted-foreground leading-relaxed">{book.descriptionShort}</p>
           </div>
         </div>
@@ -100,6 +150,7 @@ export function BookDetailClient({ book, isAuthenticated }: Props) {
               bookTitle={book.title}
               bookAuthor={book.author}
               imageUrl={book.imageUrl}
+              onReach80={handleReach80}
             />
           ) : (
             <div className="rounded-xl border border-white/10 bg-white/5 p-8 text-center">
@@ -121,7 +172,15 @@ export function BookDetailClient({ book, isAuthenticated }: Props) {
             {book.descriptionLong}
           </p>
         </div>
+
+        <SimilarBooks books={similarBooks} />
       </main>
+
+      <RatingModal
+        open={ratingOpen}
+        onClose={() => setRatingOpen(false)}
+        onSubmit={handleRate}
+      />
     </div>
   );
 }

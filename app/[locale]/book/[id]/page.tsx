@@ -33,6 +33,41 @@ export default async function BookPage({ params }: { params: { id: string } }) {
   });
   if (!book) notFound();
 
-  const session = await getServerSession(authOptions);
-  return <BookDetailClient book={book} isAuthenticated={!!session} />;
+  const similarBooksQuery =
+    book.relatedIds.length > 0
+      ? prisma.audiobook.findMany({
+          where: { id: { in: book.relatedIds }, isPublished: true },
+          select: { id: true, title: true, author: true, imageUrl: true, genre: true, duration: true },
+        })
+      : prisma.audiobook.findMany({
+          where: {
+            genre: book.genre,
+            language: book.language,
+            isPublished: true,
+            NOT: { id: book.id },
+          },
+          take: 4,
+          orderBy: { createdAt: 'desc' },
+          select: { id: true, title: true, author: true, imageUrl: true, genre: true, duration: true },
+        });
+
+  const [session, similarBooks, ratingAgg] = await Promise.all([
+    getServerSession(authOptions),
+    similarBooksQuery,
+    prisma.rating.aggregate({
+      where: { audiobookId: params.id },
+      _avg: { stars: true },
+      _count: { stars: true },
+    }),
+  ]);
+
+  return (
+    <BookDetailClient
+      book={book}
+      isAuthenticated={!!session}
+      similarBooks={similarBooks}
+      avgRating={ratingAgg._avg.stars}
+      ratingCount={ratingAgg._count.stars}
+    />
+  );
 }
