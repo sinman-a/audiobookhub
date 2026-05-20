@@ -196,7 +196,7 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
                     <SelectItem key={g.id} value={g.name}>{g.name}</SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>{t('no_books_yet')}</SelectItem>
+                  <SelectItem value="__none__" disabled>{t('no_books_yet')}</SelectItem>
                 )}
               </SelectContent>
             </Select>
@@ -236,14 +236,14 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
                 {[0, 1, 2, 3].map((idx) => (
                   <Select
                     key={idx}
-                    value={form.relatedIds[idx] ?? ''}
-                    onValueChange={(v) => setRelated(idx, v)}
+                    value={form.relatedIds[idx] || '__none__'}
+                    onValueChange={(v) => setRelated(idx, v === '__none__' ? '' : v)}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={`— ${idx + 1}`} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">—</SelectItem>
+                      <SelectItem value="__none__">—</SelectItem>
                       {allBooks
                         .filter(
                           (b) =>
