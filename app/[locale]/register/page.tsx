@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import posthog from 'posthog-js';
 import { useTranslations, useLocale } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -52,6 +53,7 @@ export default function RegisterPage() {
         return;
       }
       toast.success(t('register_success'));
+      posthog.capture('sign_up', { method: 'email' });
       router.push(`/${locale}/login`);
     } finally {
       setLoading(false);

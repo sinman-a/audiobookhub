@@ -26,6 +26,8 @@ interface Audiobook {
   language: string;
   year: number;
   isPublished: boolean;
+  views?: number;
+  avgCompletion?: number;
 }
 
 interface GenreOption {

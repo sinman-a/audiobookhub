@@ -124,7 +124,11 @@
   "analytics_funnel_registered": "Registered",
   "analytics_funnel_opened": "Opened a Book",
   "analytics_funnel_played5min": "Played 5+ min",
+  "analytics_avg_completion": "Avg Completion",
+  "analytics_top_week": "Top This Week",
 
+  "views": "Views",
+  "avg_completion": "Avg %",
   "admin_tab_books": "Books",
   "admin_tab_genres": "Genres",
   "admin_tab_categories": "Categories",

@@ -124,7 +124,11 @@
   "analytics_funnel_registered": "Зареєстровані",
   "analytics_funnel_opened": "Відкрили книгу",
   "analytics_funnel_played5min": "Слухали 5+ хв",
+  "analytics_avg_completion": "Середнє прослуховування",
+  "analytics_top_week": "Топ за тиждень",
 
+  "views": "Перегляди",
+  "avg_completion": "Avg %",
   "admin_tab_books": "Книги",
   "admin_tab_genres": "Жанри",
   "admin_tab_categories": "Категорії",

@@ -22,6 +22,8 @@ interface Audiobook {
   year: number;
   isPublished: boolean;
   relatedIds?: string[];
+  views?: number;
+  avgCompletion?: number;
 }
 
 interface GenreOption {
@@ -85,6 +87,8 @@ export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }:
               <th className="text-left p-3 font-medium hidden md:table-cell">{t('author')}</th>
               <th className="text-left p-3 font-medium hidden sm:table-cell">{t('genre')}</th>
               <th className="text-left p-3 font-medium">{t('status')}</th>
+              <th className="text-left p-3 font-medium hidden lg:table-cell">{t('views')}</th>
+              <th className="text-left p-3 font-medium hidden lg:table-cell">{t('avg_completion')}</th>
               <th className="text-right p-3 font-medium">{t('actions')}</th>
             </tr>
           </thead>
@@ -100,6 +104,17 @@ export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }:
                   <Badge variant={book.isPublished ? 'default' : 'secondary'}>
                     {book.isPublished ? t('published') : t('draft')}
                   </Badge>
+                </td>
+                <td className="p-3 text-muted-foreground hidden lg:table-cell tabular-nums">
+                  {book.views ?? '—'}
+                </td>
+                <td className="p-3 hidden lg:table-cell">
+                  {book.avgCompletion ? (
+                    <span className={`text-sm font-medium tabular-nums ${
+                      book.avgCompletion >= 75 ? 'text-green-400' :
+                      book.avgCompletion >= 50 ? 'text-yellow-400' : 'text-white/50'
+                    }`}>{book.avgCompletion}%</span>
+                  ) : <span className="text-muted-foreground">—</span>}
                 </td>
                 <td className="p-3">
                   <div className="flex items-center justify-end gap-1">

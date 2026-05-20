@@ -31,9 +31,10 @@ export default async function AnalyticsPage() {
 
   const topByListensRaw = await prisma.userProgress.groupBy({
     by: ['audiobookId'],
+    where: { updatedAt: { gte: day7 } },
     _count: { audiobookId: true },
     orderBy: { _count: { audiobookId: 'desc' } },
-    take: 10,
+    take: 5,
   });
 
   const bookIds = topByListensRaw.map(r => r.audiobookId);
@@ -65,6 +66,13 @@ export default async function AnalyticsPage() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
 
+  let totalPct = 0, totalPctCount = 0;
+  for (const p of allProgress) {
+    const dur = parseDurationSeconds(p.audiobook.duration);
+    if (dur > 0) { totalPct += p.seconds / dur; totalPctCount++; }
+  }
+  const avgCompletionPct = totalPctCount > 0 ? Math.round((totalPct / totalPctCount) * 100) : 0;
+
   const [openedBookRows, played5minRows] = await Promise.all([
     prisma.userProgress.findMany({ select: { userId: true }, distinct: ['userId'] }),
     prisma.userProgress.findMany({ where: { seconds: { gte: 300 } }, select: { userId: true }, distinct: ['userId'] }),
@@ -76,6 +84,7 @@ export default async function AnalyticsPage() {
       wau={wauRows.length}
       mau={mauRows.length}
       totalUsers={totalUsers}
+      avgCompletionPct={avgCompletionPct}
       dailyData={dailyRaw.map(d => ({
         date: d.date instanceof Date
           ? d.date.toLocaleDateString('uk-UA', { month: 'short', day: 'numeric' })

@@ -17,6 +17,7 @@ interface Props {
   wau: number;
   mau: number;
   totalUsers: number;
+  avgCompletionPct: number;
   dailyData: Array<{ date: string; count: number }>;
   topByListens: BookStat[];
   topByCompletion: BookStat[];
@@ -52,7 +53,7 @@ function TopList({ items, max, color }: { items: BookStat[]; max: number; color:
 }
 
 export function AnalyticsClient({
-  dau, wau, mau, totalUsers,
+  dau, wau, mau, totalUsers, avgCompletionPct,
   dailyData, topByListens, topByCompletion, funnel,
 }: Props) {
   const t = useTranslations();
@@ -74,19 +75,20 @@ export function AnalyticsClient({
         <h1 className="text-3xl font-bold mb-8">{t('analytics')}</h1>
 
         {/* Stat cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {([
-            { label: t('analytics_dau'),         value: dau,        sub: '24h' },
-            { label: t('analytics_wau'),         value: wau,        sub: '7d'  },
-            { label: t('analytics_mau'),         value: mau,        sub: '30d' },
-            { label: t('analytics_total_users'), value: totalUsers, sub: ''    },
-          ] as const).map(c => (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+          {[
+            { label: t('analytics_dau'),            value: dau,                    sub: '24h' },
+            { label: t('analytics_wau'),            value: wau,                    sub: '7d'  },
+            { label: t('analytics_mau'),            value: mau,                    sub: '30d' },
+            { label: t('analytics_total_users'),    value: totalUsers,             sub: ''    },
+            { label: t('analytics_avg_completion'), value: `${avgCompletionPct}%`, sub: 'all time' },
+          ].map(c => (
             <div
               key={c.label}
               className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm"
             >
               <p className="text-xs text-white/40 uppercase tracking-wider mb-1">{c.label}</p>
-              <p className="text-4xl font-bold text-white tabular-nums">{c.value}</p>
+              <p className="text-4xl font-bold text-white tabular-nums">{String(c.value)}</p>
               {c.sub && <p className="text-xs text-white/30 mt-1">{c.sub}</p>}
             </div>
           ))}
@@ -150,7 +152,7 @@ export function AnalyticsClient({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
             <h2 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-5">
-              {t('analytics_top_listens')}
+              {t('analytics_top_week')}
             </h2>
             <TopList items={topByListens} max={maxListens} color="bg-blue-500/60" />
           </div>

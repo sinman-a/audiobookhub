@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { extractYoutubeId } from '@/lib/youtube';
+import { parseDurationSeconds } from '@/lib/playback';
 
 const bookSchema = z.object({
   title: z.string().min(1),
@@ -25,8 +26,24 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const books = await prisma.audiobook.findMany({ orderBy: { createdAt: 'desc' } });
-  return NextResponse.json(books);
+  const [books, progressStats] = await Promise.all([
+    prisma.audiobook.findMany({ orderBy: { createdAt: 'desc' } }),
+    prisma.userProgress.groupBy({
+      by: ['audiobookId'],
+      _count: { audiobookId: true },
+      _avg: { seconds: true },
+    }),
+  ]);
+  const statsMap = Object.fromEntries(progressStats.map(s => [s.audiobookId, s]));
+  const result = books.map(book => {
+    const stat = statsMap[book.id];
+    const totalSec = parseDurationSeconds(book.duration);
+    const avgCompletion = stat && totalSec > 0
+      ? Math.round(((stat._avg.seconds ?? 0) / totalSec) * 100)
+      : 0;
+    return { ...book, views: stat?._count.audiobookId ?? 0, avgCompletion };
+  });
+  return NextResponse.json(result);
 }
 
 export async function POST(req: NextRequest) {
