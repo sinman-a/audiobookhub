@@ -62,6 +62,21 @@ model UserLibrary {
   @@unique([userId, audiobookId])
 }
 
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  genres    Genre[]
+  createdAt DateTime @default(now())
+}
+
+model Genre {
+  id         String    @id @default(cuid())
+  name       String    @unique
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
+}
+
 enum Role {
   USER
   ADMIN

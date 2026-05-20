@@ -123,5 +123,21 @@
   "analytics_active": "Активні",
   "analytics_funnel_registered": "Зареєстровані",
   "analytics_funnel_opened": "Відкрили книгу",
-  "analytics_funnel_played5min": "Слухали 5+ хв"
+  "analytics_funnel_played5min": "Слухали 5+ хв",
+
+  "admin_tab_books": "Книги",
+  "admin_tab_genres": "Жанри",
+  "admin_tab_categories": "Категорії",
+  "genre_name": "Назва жанру",
+  "category_name": "Назва категорії",
+  "no_category": "Без категорії",
+  "genre_count": "Жанрів",
+  "add_genre": "Додати жанр",
+  "add_category": "Додати категорію",
+  "confirm_delete_genre": "Видалити цей жанр?",
+  "confirm_delete_category": "Видалити цю категорію? Жанри стануть без категорії.",
+  "genre_saved": "Жанр збережено",
+  "category_saved": "Категорію збережено",
+  "genre_deleted": "Жанр видалено",
+  "category_deleted": "Категорію видалено"
 }

@@ -87,7 +87,7 @@ function PublicBookCard({ book, onListen }: { book: BookData; onListen: () => vo
             src={book.imageUrl || '/placeholder.jpg'}
             alt={book.title}
             fill
-            className="object-cover"
+            className="object-contain"
             sizes="(max-width: 640px) 50vw, 25vw"
           />
         </div>

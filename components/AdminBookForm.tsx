@@ -29,11 +29,17 @@ interface Audiobook {
   isPublished: boolean;
 }
 
+interface GenreOption {
+  id: string;
+  name: string;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
   book?: Audiobook | null;
+  genres?: GenreOption[];
 }
 
 // Only title and youtubeUrl are required — everything else is optional
@@ -53,7 +59,7 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
+export function AdminBookForm({ open, onClose, onSuccess, book, genres = [] }: Props) {
   const t = useTranslations();
   const isEdit = !!book;
 
@@ -173,15 +179,13 @@ export function AdminBookForm({ open, onClose, onSuccess, book }: Props) {
             <Select value={form.genre ?? ''} onValueChange={(v) => set('genre', v)}>
               <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Music">Music / Музика</SelectItem>
-                <SelectItem value="Adventure">Adventure / Пригоди</SelectItem>
-                <SelectItem value="Fantasy">Fantasy / Фантастика</SelectItem>
-                <SelectItem value="Non-fiction">Non-fiction / Нон-фікшн</SelectItem>
-                <SelectItem value="Detective">Detective / Детектив</SelectItem>
-                <SelectItem value="Classic">Classic / Класика</SelectItem>
-                <SelectItem value="Romance">Romance / Романтика</SelectItem>
-                <SelectItem value="Biography">Biography / Біографія</SelectItem>
-                <SelectItem value="Other">Other / Інше</SelectItem>
+                {genres.length > 0 ? (
+                  genres.map((g) => (
+                    <SelectItem key={g.id} value={g.name}>{g.name}</SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>{t('no_books_yet')}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </Field>

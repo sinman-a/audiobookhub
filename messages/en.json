@@ -123,5 +123,21 @@
   "analytics_active": "Active",
   "analytics_funnel_registered": "Registered",
   "analytics_funnel_opened": "Opened a Book",
-  "analytics_funnel_played5min": "Played 5+ min"
+  "analytics_funnel_played5min": "Played 5+ min",
+
+  "admin_tab_books": "Books",
+  "admin_tab_genres": "Genres",
+  "admin_tab_categories": "Categories",
+  "genre_name": "Genre name",
+  "category_name": "Category name",
+  "no_category": "No category",
+  "genre_count": "Genres",
+  "add_genre": "Add Genre",
+  "add_category": "Add Category",
+  "confirm_delete_genre": "Delete this genre?",
+  "confirm_delete_category": "Delete this category? Genres will become uncategorized.",
+  "genre_saved": "Genre saved",
+  "category_saved": "Category saved",
+  "genre_deleted": "Genre deleted",
+  "category_deleted": "Category deleted"
 }

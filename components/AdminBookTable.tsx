@@ -23,12 +23,18 @@ interface Audiobook {
   isPublished: boolean;
 }
 
+interface GenreOption {
+  id: string;
+  name: string;
+}
+
 interface Props {
   books: Audiobook[];
   onRefresh: () => void;
+  genres?: GenreOption[];
 }
 
-export function AdminBookTable({ books, onRefresh }: Props) {
+export function AdminBookTable({ books, onRefresh, genres = [] }: Props) {
   const t = useTranslations();
   const [editBook, setEditBook] = useState<Audiobook | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -139,6 +145,7 @@ export function AdminBookTable({ books, onRefresh }: Props) {
         onClose={() => setEditBook(null)}
         onSuccess={() => { setEditBook(null); onRefresh(); }}
         book={editBook}
+        genres={genres}
       />
     </>
   );
