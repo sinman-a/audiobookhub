@@ -28,7 +28,8 @@ interface Audiobook {
 
 interface GenreOption {
   id: string;
-  name: string;
+  nameUk: string;
+  nameEn: string;
 }
 
 interface Props {

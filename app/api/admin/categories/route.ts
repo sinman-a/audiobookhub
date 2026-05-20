@@ -10,8 +10,8 @@ export async function GET() {
   }
 
   const categories = await prisma.category.findMany({
-    include: { _count: { select: { genres: true } } },
-    orderBy: { name: 'asc' },
+    include: { _count: { select: { subcategories: true } } },
+    orderBy: { nameUk: 'asc' },
   });
   return NextResponse.json(categories);
 }
@@ -23,14 +23,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { name } = await req.json();
-    if (!name?.trim()) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    const { nameUk, nameEn } = await req.json();
+    if (!nameUk?.trim()) {
+      return NextResponse.json({ error: 'Ukrainian name is required' }, { status: 400 });
     }
 
     const category = await prisma.category.create({
-      data: { name: name.trim() },
-      include: { _count: { select: { genres: true } } },
+      data: { nameUk: nameUk.trim(), nameEn: (nameEn ?? '').trim() },
+      include: { _count: { select: { subcategories: true } } },
     });
     return NextResponse.json(category, { status: 201 });
   } catch (err: unknown) {

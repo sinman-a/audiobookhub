@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useId } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import {
@@ -28,11 +28,27 @@ interface Audiobook {
   year: number;
   isPublished: boolean;
   relatedIds?: string[];
+  categoryId?: string;
+  subcategoryId?: string;
 }
 
 interface GenreOption {
   id: string;
-  name: string;
+  nameUk: string;
+  nameEn: string;
+}
+
+interface CategoryOption {
+  id: string;
+  nameUk: string;
+  nameEn: string;
+}
+
+interface SubcategoryOption {
+  id: string;
+  nameUk: string;
+  nameEn: string;
+  categoryId: string;
 }
 
 interface Props {
@@ -44,7 +60,6 @@ interface Props {
   allBooks?: { id: string; title: string }[];
 }
 
-// Only title and youtubeUrl are required — everything else is optional
 const formSchema = z.object({
   title: z.string().min(1),
   author: z.string().optional().or(z.literal('')),
@@ -58,15 +73,17 @@ const formSchema = z.object({
   year: z.number().int().min(1900).max(2100),
   isPublished: z.boolean(),
   relatedIds: z.string().array().default([]),
+  categoryId: z.string().optional().or(z.literal('')),
+  subcategoryId: z.string().optional().or(z.literal('')),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
 export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], allBooks = [] }: Props) {
   const t = useTranslations();
+  const locale = useLocale();
   const isEdit = !!book;
 
-  // Note: parent passes key={book?.id} so this state always initializes fresh
   const [form, setForm] = useState<FormData>({
     title: book?.title ?? '',
     author: book?.author ?? '',
@@ -80,18 +97,27 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
     year: book?.year ?? new Date().getFullYear(),
     isPublished: book?.isPublished ?? false,
     relatedIds: book?.relatedIds ?? [],
+    categoryId: book?.categoryId ?? '',
+    subcategoryId: book?.subcategoryId ?? '',
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [loading, setLoading] = useState(false);
   const [fetchedGenres, setFetchedGenres] = useState<GenreOption[]>(genres);
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
 
   useEffect(() => {
     if (!open) return;
-    fetch('/api/admin/genres')
-      .then((r) => r.json())
-      .then((data) => { if (Array.isArray(data)) setFetchedGenres(data); })
-      .catch(() => {});
+    Promise.all([
+      fetch('/api/admin/genres').then((r) => r.json()),
+      fetch('/api/admin/categories').then((r) => r.json()),
+      fetch('/api/admin/subcategories').then((r) => r.json()),
+    ]).then(([g, c, s]) => {
+      if (Array.isArray(g)) setFetchedGenres(g);
+      if (Array.isArray(c)) setCategories(c);
+      if (Array.isArray(s)) setSubcategories(s);
+    }).catch(() => {});
   }, [open]);
 
   const set = <K extends keyof FormData>(field: K, value: FormData[K]) =>
@@ -104,6 +130,9 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
       return { ...prev, relatedIds: next.filter(Boolean) };
     });
   };
+
+  const localeName = (uk: string, en: string) =>
+    locale === 'en' && en ? en : uk;
 
   const validate = () => {
     try {
@@ -154,6 +183,10 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
     }
   };
 
+  const filteredSubcategories = form.categoryId
+    ? subcategories.filter((s) => s.categoryId === form.categoryId)
+    : subcategories;
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -196,13 +229,57 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
               rows={5}
             />
           </Field>
+
+          {/* Category */}
+          <Field label={t('category')} error={errors.categoryId}>
+            <Select
+              value={form.categoryId || '__none__'}
+              onValueChange={(v) => {
+                const val = v === '__none__' ? '' : v;
+                set('categoryId', val);
+                set('subcategoryId', '');
+              }}
+            >
+              <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">—</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {localeName(c.nameUk, c.nameEn)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+
+          {/* Subcategory — filtered by selected category */}
+          <Field label={t('subcategory')} error={errors.subcategoryId}>
+            <Select
+              value={form.subcategoryId || '__none__'}
+              onValueChange={(v) => set('subcategoryId', v === '__none__' ? '' : v)}
+            >
+              <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">—</SelectItem>
+                {filteredSubcategories.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {localeName(s.nameUk, s.nameEn)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+
+          {/* Genre */}
           <Field label={t('genre')} error={errors.genre}>
             <Select value={form.genre ?? ''} onValueChange={(v) => set('genre', v)}>
               <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
               <SelectContent>
                 {fetchedGenres.length > 0 ? (
                   fetchedGenres.map((g) => (
-                    <SelectItem key={g.id} value={g.name}>{g.name}</SelectItem>
+                    <SelectItem key={g.id} value={g.nameUk}>
+                      {localeName(g.nameUk, g.nameEn)}
+                    </SelectItem>
                   ))
                 ) : (
                   <SelectItem value="__none__" disabled>{t('no_books_yet')}</SelectItem>
@@ -210,6 +287,7 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
               </SelectContent>
             </Select>
           </Field>
+
           <Field label={t('language')} error={errors.language}>
             <Select value={form.language ?? ''} onValueChange={(v) => set('language', v)}>
               <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
@@ -271,7 +349,7 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
             </div>
           )}
 
-          {/* Publish toggle — prominent placement */}
+          {/* Publish toggle */}
           <div className="sm:col-span-2 flex items-center justify-between rounded-lg border p-3 bg-muted/30">
             <div>
               <p className="font-medium text-sm">{form.isPublished ? t('published') : t('draft')}</p>

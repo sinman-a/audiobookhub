@@ -34,11 +34,15 @@ model Audiobook {
   isPublished      Boolean        @default(false)
   isFeatured       Boolean        @default(false)
   relatedIds       String[]       @default([])
+  categoryId       String?
+  subcategoryId    String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   progress         UserProgress[]
   library          UserLibrary[]
   ratings          Rating[]
+  category         Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  subcategory      Subcategory?   @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
 }
 
 model UserProgress {
@@ -67,18 +71,34 @@ model UserLibrary {
 }
 
 model Category {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  genres    Genre[]
-  createdAt DateTime @default(now())
+  id            String        @id @default(cuid())
+  nameUk        String        @unique
+  nameEn        String        @default("")
+  subcategories Subcategory[]
+  audiobooks    Audiobook[]
+  createdAt     DateTime      @default(now())
+}
+
+model Subcategory {
+  id         String      @id @default(cuid())
+  nameUk     String
+  nameEn     String      @default("")
+  categoryId String
+  category   Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  genres     Genre[]
+  audiobooks Audiobook[]
+  createdAt  DateTime    @default(now())
+
+  @@unique([nameUk, categoryId])
 }
 
 model Genre {
-  id         String    @id @default(cuid())
-  name       String    @unique
-  categoryId String?
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  createdAt  DateTime  @default(now())
+  id            String       @id @default(cuid())
+  nameUk        String       @unique
+  nameEn        String       @default("")
+  subcategoryId String?
+  subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  createdAt     DateTime     @default(now())
 }
 
 model LandingConfig {

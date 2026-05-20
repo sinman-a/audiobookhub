@@ -10,18 +10,28 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   try {
-    const { name, categoryId } = await req.json();
-    if (!name?.trim()) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    const { nameUk, nameEn, subcategoryId } = await req.json();
+    if (!nameUk?.trim()) {
+      return NextResponse.json({ error: 'Ukrainian name is required' }, { status: 400 });
     }
 
     const genre = await prisma.genre.update({
       where: { id: params.id },
       data: {
-        name: name.trim(),
-        categoryId: categoryId ?? null,
+        nameUk: nameUk.trim(),
+        nameEn: (nameEn ?? '').trim(),
+        subcategoryId: subcategoryId ?? null,
       },
-      include: { category: { select: { id: true, name: true } } },
+      include: {
+        subcategory: {
+          select: {
+            id: true,
+            nameUk: true,
+            nameEn: true,
+            category: { select: { id: true, nameUk: true, nameEn: true } },
+          },
+        },
+      },
     });
     return NextResponse.json(genre);
   } catch (err: unknown) {

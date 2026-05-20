@@ -10,6 +10,7 @@ import { AdminBookTable } from '@/components/AdminBookTable';
 import { AdminBookForm } from '@/components/AdminBookForm';
 import { AdminGenreManager } from '@/components/AdminGenreManager';
 import { AdminCategoryManager } from '@/components/AdminCategoryManager';
+import { AdminSubcategoryManager } from '@/components/AdminSubcategoryManager';
 import { AdminLandingManager } from '@/components/AdminLandingManager';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -28,14 +29,17 @@ interface Audiobook {
   isPublished: boolean;
   views?: number;
   avgCompletion?: number;
+  categoryId?: string;
+  subcategoryId?: string;
 }
 
 interface GenreOption {
   id: string;
-  name: string;
+  nameUk: string;
+  nameEn: string;
 }
 
-type Tab = 'books' | 'genres' | 'categories' | 'landing';
+type Tab = 'books' | 'genres' | 'categories' | 'subcategories' | 'landing';
 
 export default function AdminPage() {
   const t = useTranslations();
@@ -79,10 +83,11 @@ export default function AdminPage() {
   }
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'books',      label: t('admin_tab_books') },
-    { id: 'genres',     label: t('admin_tab_genres') },
-    { id: 'categories', label: t('admin_tab_categories') },
-    { id: 'landing',    label: t('admin_tab_landing') },
+    { id: 'books',         label: t('admin_tab_books') },
+    { id: 'genres',        label: t('admin_tab_genres') },
+    { id: 'categories',    label: t('admin_tab_categories') },
+    { id: 'subcategories', label: t('admin_tab_subcategories') },
+    { id: 'landing',       label: t('admin_tab_landing') },
   ];
 
   return (
@@ -100,7 +105,7 @@ export default function AdminPage() {
         </div>
 
         {/* Tab bar */}
-        <div className="flex gap-1 mb-6 border-b border-white/10 pb-0">
+        <div className="flex gap-1 mb-6 border-b border-white/10 pb-0 flex-wrap">
           {tabs.map(({ id, label }) => (
             <button
               key={id}
@@ -143,6 +148,9 @@ export default function AdminPage() {
 
         {/* Categories tab */}
         {tab === 'categories' && <AdminCategoryManager />}
+
+        {/* Subcategories tab */}
+        {tab === 'subcategories' && <AdminSubcategoryManager />}
 
         {/* Landing tab */}
         {tab === 'landing' && <AdminLandingManager />}

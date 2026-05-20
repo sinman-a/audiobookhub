@@ -9,55 +9,70 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface Category {
+interface SubcategoryRef {
   id: string;
-  name: string;
+  nameUk: string;
+  nameEn: string;
+  category: { id: string; nameUk: string; nameEn: string } | null;
 }
 
 interface Genre {
   id: string;
-  name: string;
-  category: Category | null;
+  nameUk: string;
+  nameEn: string;
+  subcategory: SubcategoryRef | null;
+}
+
+interface SubcategoryOption {
+  id: string;
+  nameUk: string;
+  nameEn: string;
+  categoryId: string;
+  category: { nameUk: string; nameEn: string };
 }
 
 export function AdminGenreManager() {
   const t = useTranslations();
   const [genres, setGenres] = useState<Genre[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [subcategories, setSubcategories] = useState<SubcategoryOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', categoryId: '' });
+  const [form, setForm] = useState({ nameUk: '', nameEn: '', subcategoryId: '' });
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const [g, c] = await Promise.all([
+    const [g, s] = await Promise.all([
       fetch('/api/admin/genres').then((r) => r.json()),
-      fetch('/api/admin/categories').then((r) => r.json()),
+      fetch('/api/admin/subcategories').then((r) => r.json()),
     ]);
     setGenres(Array.isArray(g) ? g : []);
-    setCategories(Array.isArray(c) ? c : []);
+    setSubcategories(Array.isArray(s) ? s : []);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, []);
 
   const resetForm = () => {
-    setForm({ name: '', categoryId: '' });
+    setForm({ nameUk: '', nameEn: '', subcategoryId: '' });
     setEditingId(null);
     setShowForm(false);
   };
 
   const handleSave = async () => {
-    if (!form.name.trim()) return;
+    if (!form.nameUk.trim()) return;
     setSaving(true);
     const url = editingId ? `/api/admin/genres/${editingId}` : '/api/admin/genres';
     const method = editingId ? 'PUT' : 'POST';
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: form.name.trim(), categoryId: form.categoryId || null }),
+      body: JSON.stringify({
+        nameUk: form.nameUk.trim(),
+        nameEn: form.nameEn.trim(),
+        subcategoryId: form.subcategoryId || null,
+      }),
     });
     setSaving(false);
     if (res.ok) {
@@ -71,7 +86,11 @@ export function AdminGenreManager() {
   };
 
   const handleEdit = (g: Genre) => {
-    setForm({ name: g.name, categoryId: g.category?.id ?? '' });
+    setForm({
+      nameUk: g.nameUk,
+      nameEn: g.nameEn,
+      subcategoryId: g.subcategory?.id ?? '',
+    });
     setEditingId(g.id);
     setShowForm(true);
   };
@@ -104,35 +123,47 @@ export function AdminGenreManager() {
 
       {showForm && (
         <div className="mb-4 p-4 border border-white/10 rounded-lg bg-white/5 flex flex-wrap gap-3 items-end">
-          <div className="flex-1 min-w-[180px]">
-            <p className="text-xs text-muted-foreground mb-1">{t('genre_name')}</p>
+          <div className="flex-1 min-w-[160px]">
+            <p className="text-xs text-muted-foreground mb-1">{t('name_uk')}</p>
             <Input
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              value={form.nameUk}
+              onChange={(e) => setForm((f) => ({ ...f, nameUk: e.target.value }))}
               onKeyDown={(e) => e.key === 'Enter' && handleSave()}
               placeholder={t('genre_name')}
               autoFocus
             />
           </div>
-          <div className="flex-1 min-w-[180px]">
-            <p className="text-xs text-muted-foreground mb-1">{t('admin_tab_categories')}</p>
+          <div className="flex-1 min-w-[160px]">
+            <p className="text-xs text-muted-foreground mb-1">{t('name_en')}</p>
+            <Input
+              value={form.nameEn}
+              onChange={(e) => setForm((f) => ({ ...f, nameEn: e.target.value }))}
+              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+              placeholder={t('genre_name')}
+            />
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <p className="text-xs text-muted-foreground mb-1">{t('admin_tab_subcategories')}</p>
             <Select
-              value={form.categoryId || '__none__'}
-              onValueChange={(v) => setForm((f) => ({ ...f, categoryId: v === '__none__' ? '' : v }))}
+              value={form.subcategoryId || '__none__'}
+              onValueChange={(v) => setForm((f) => ({ ...f, subcategoryId: v === '__none__' ? '' : v }))}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__none__">{t('no_category')}</SelectItem>
-                {categories.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                <SelectItem value="__none__">{t('no_subcategory')}</SelectItem>
+                {subcategories.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.nameUk}
+                    <span className="text-white/40 ml-1.5 text-xs">/ {s.category.nameUk}</span>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleSave} disabled={saving || !form.name.trim()}>
+            <Button size="sm" onClick={handleSave} disabled={saving || !form.nameUk.trim()}>
               <Check className="h-4 w-4" />
             </Button>
             <Button size="sm" variant="ghost" onClick={resetForm}>
@@ -155,16 +186,26 @@ export function AdminGenreManager() {
           <table className="w-full text-sm">
             <thead className="bg-white/5">
               <tr>
-                <th className="text-left px-4 py-2.5 font-medium">{t('genre_name')}</th>
-                <th className="text-left px-4 py-2.5 font-medium">{t('admin_tab_categories')}</th>
+                <th className="text-left px-4 py-2.5 font-medium">{t('name_uk')}</th>
+                <th className="text-left px-4 py-2.5 font-medium hidden md:table-cell">{t('name_en')}</th>
+                <th className="text-left px-4 py-2.5 font-medium hidden lg:table-cell">{t('admin_tab_subcategories')}</th>
+                <th className="text-left px-4 py-2.5 font-medium hidden lg:table-cell">{t('admin_tab_categories')}</th>
                 <th className="w-20 px-4 py-2.5" />
               </tr>
             </thead>
             <tbody>
               {genres.map((g) => (
                 <tr key={g.id} className="border-t border-white/5 hover:bg-white/[0.03]">
-                  <td className="px-4 py-3 font-medium">{g.name}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{g.category?.name ?? '—'}</td>
+                  <td className="px-4 py-3 font-medium">{g.nameUk}</td>
+                  <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
+                    {g.nameEn || '—'}
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
+                    {g.subcategory?.nameUk ?? '—'}
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
+                    {g.subcategory?.category?.nameUk ?? '—'}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-1">
                       <Button

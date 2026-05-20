@@ -18,6 +18,8 @@ const bookSchema = z.object({
   language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100).optional().default(new Date().getFullYear()),
   isPublished: z.boolean().default(false),
+  categoryId: z.string().optional().or(z.literal('')),
+  subcategoryId: z.string().optional().or(z.literal('')),
 });
 
 export async function GET(req: NextRequest) {
@@ -74,6 +76,8 @@ export async function POST(req: NextRequest) {
         language: data.language || '',
         year: data.year ?? new Date().getFullYear(),
         isPublished: data.isPublished,
+        categoryId: data.categoryId || null,
+        subcategoryId: data.subcategoryId || null,
       },
     });
 

@@ -18,6 +18,8 @@ const updateSchema = z.object({
   year: z.number().int().min(1900).max(2100).optional(),
   isPublished: z.boolean().optional(),
   relatedIds: z.string().array().optional(),
+  categoryId: z.string().optional().or(z.literal('')),
+  subcategoryId: z.string().optional().or(z.literal('')),
 });
 
 async function requireAdmin(req: NextRequest) {
@@ -50,6 +52,8 @@ export async function PUT(
     if (data.year !== undefined) prismaData.year = data.year;
     if (data.isPublished !== undefined) prismaData.isPublished = data.isPublished;
     if (data.relatedIds !== undefined) prismaData.relatedIds = data.relatedIds;
+    if (data.categoryId !== undefined) prismaData.categoryId = data.categoryId || null;
+    if (data.subcategoryId !== undefined) prismaData.subcategoryId = data.subcategoryId || null;
 
     if (data.youtubeUrl) {
       const youtubeId = extractYoutubeId(data.youtubeUrl);

@@ -10,21 +10,25 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 
   try {
-    const { nameUk, nameEn } = await req.json();
-    if (!nameUk?.trim()) {
-      return NextResponse.json({ error: 'Ukrainian name is required' }, { status: 400 });
-    }
+    const { nameUk, nameEn, categoryId } = await req.json();
+    const data: Record<string, unknown> = {};
+    if (nameUk !== undefined) data.nameUk = nameUk.trim();
+    if (nameEn !== undefined) data.nameEn = nameEn.trim();
+    if (categoryId !== undefined) data.categoryId = categoryId;
 
-    const category = await prisma.category.update({
+    const subcategory = await prisma.subcategory.update({
       where: { id: params.id },
-      data: { nameUk: nameUk.trim(), nameEn: (nameEn ?? '').trim() },
-      include: { _count: { select: { subcategories: true } } },
+      data,
+      include: {
+        category: { select: { id: true, nameUk: true, nameEn: true } },
+        _count: { select: { genres: true } },
+      },
     });
-    return NextResponse.json(category);
+    return NextResponse.json(subcategory);
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Server error';
     if (msg.includes('Unique constraint')) {
-      return NextResponse.json({ error: 'Category already exists' }, { status: 409 });
+      return NextResponse.json({ error: 'Subcategory already exists in this category' }, { status: 409 });
     }
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
@@ -36,7 +40,10 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  // Cascade in schema deletes subcategories → SetNull on genre.subcategoryId
-  await prisma.category.delete({ where: { id: params.id } });
-  return NextResponse.json({ success: true });
+  try {
+    await prisma.subcategory.delete({ where: { id: params.id } });
+    return NextResponse.json({ ok: true });
+  } catch {
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
 }

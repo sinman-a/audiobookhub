@@ -9,20 +9,14 @@ export async function GET() {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const genres = await prisma.genre.findMany({
+  const subcategories = await prisma.subcategory.findMany({
     include: {
-      subcategory: {
-        select: {
-          id: true,
-          nameUk: true,
-          nameEn: true,
-          category: { select: { id: true, nameUk: true, nameEn: true } },
-        },
-      },
+      category: { select: { id: true, nameUk: true, nameEn: true } },
+      _count: { select: { genres: true } },
     },
     orderBy: { nameUk: 'asc' },
   });
-  return NextResponse.json(genres);
+  return NextResponse.json(subcategories);
 }
 
 export async function POST(req: NextRequest) {
@@ -32,33 +26,30 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { nameUk, nameEn, subcategoryId } = await req.json();
+    const { nameUk, nameEn, categoryId } = await req.json();
     if (!nameUk?.trim()) {
       return NextResponse.json({ error: 'Ukrainian name is required' }, { status: 400 });
     }
+    if (!categoryId) {
+      return NextResponse.json({ error: 'Category is required' }, { status: 400 });
+    }
 
-    const genre = await prisma.genre.create({
+    const subcategory = await prisma.subcategory.create({
       data: {
         nameUk: nameUk.trim(),
         nameEn: (nameEn ?? '').trim(),
-        subcategoryId: subcategoryId || null,
+        categoryId,
       },
       include: {
-        subcategory: {
-          select: {
-            id: true,
-            nameUk: true,
-            nameEn: true,
-            category: { select: { id: true, nameUk: true, nameEn: true } },
-          },
-        },
+        category: { select: { id: true, nameUk: true, nameEn: true } },
+        _count: { select: { genres: true } },
       },
     });
-    return NextResponse.json(genre, { status: 201 });
+    return NextResponse.json(subcategory, { status: 201 });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Server error';
     if (msg.includes('Unique constraint')) {
-      return NextResponse.json({ error: 'Genre already exists' }, { status: 409 });
+      return NextResponse.json({ error: 'Subcategory already exists in this category' }, { status: 409 });
     }
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
