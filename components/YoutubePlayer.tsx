@@ -47,6 +47,44 @@ interface Props {
 
 const SAVE_INTERVAL_MS = 10_000;
 
+// ── Wake Lock ────────────────────────────────────────────────────────────────
+// Keeps the screen on while audio plays so Samsung/Android can't kill the tab.
+// Auto-released by the browser when the screen locks; re-acquired on return.
+let wakeLock: WakeLockSentinel | null = null;
+
+const acquireWakeLock = async () => {
+  if (!('wakeLock' in navigator) || wakeLock) return;
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch { /* unsupported or denied */ }
+};
+
+const releaseWakeLock = () => {
+  wakeLock?.release().catch(() => {});
+  wakeLock = null;
+};
+
+// ── Silent AudioContext keep-alive ───────────────────────────────────────────
+// Chrome marks a tab as "audio-producing" when its AudioContext has active output.
+// This prevents Samsung's battery optimizer from killing the background tab.
+let silentCtx: AudioContext | null = null;
+
+const startSilentKeepAlive = () => {
+  if (silentCtx) return;
+  try {
+    silentCtx = new AudioContext();
+    const buf = silentCtx.createBuffer(1, silentCtx.sampleRate, silentCtx.sampleRate);
+    const src = silentCtx.createBufferSource();
+    src.buffer = buf;
+    src.loop = true;
+    src.connect(silentCtx.destination);
+    src.start();
+  } catch { /* unsupported */ }
+};
+
+const stopSilentKeepAlive = () => {
+  silentCtx?.close().catch(() => {});
+  silentCtx = null;
+};
+
 export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageUrl, onReach80 }: Props) {
   const divRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YTPlayer | null>(null);
@@ -104,6 +142,8 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
               }
 
               wasPlayingRef.current = true;
+              startSilentKeepAlive();
+              acquireWakeLock();
 
               if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
@@ -153,6 +193,8 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
               clearInterval(intervalRef.current);
 
               wasPlayingRef.current = false;
+              stopSilentKeepAlive();
+              releaseWakeLock();
 
               if ('mediaSession' in navigator) {
                 navigator.mediaSession.playbackState = 'paused';
@@ -183,10 +225,11 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
       }
     }
 
-    // Auto-resume when user returns to the browser tab after backgrounding
     const handleVisibility = () => {
-      if (!document.hidden && wasPlayingRef.current && playerRef.current) {
-        playerRef.current.playVideo();
+      if (!document.hidden && wasPlayingRef.current) {
+        acquireWakeLock();
+        silentCtx?.resume().catch(() => {});
+        playerRef.current?.playVideo();
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
@@ -199,6 +242,8 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
       if (finalTime > 5) syncToDb(bookId, finalTime);
       try { playerRef.current?.destroy(); } catch { /* ignore */ }
       playerRef.current = null;
+      stopSilentKeepAlive();
+      releaseWakeLock();
 
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = null;
