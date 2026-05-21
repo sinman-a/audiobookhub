@@ -9,6 +9,8 @@ interface YTPlayer {
   getCurrentTime(): number;
   getDuration(): number;
   seekTo(seconds: number, allowSeekAhead: boolean): void;
+  playVideo(): void;
+  pauseVideo(): void;
   destroy(): void;
 }
 
@@ -55,6 +57,7 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
   const has75Ref = useRef(false);
   const has80Ref = useRef(false);
   const on80Ref = useRef(onReach80);
+  const wasPlayingRef = useRef(false);
   useEffect(() => { on80Ref.current = onReach80; });
 
   useEffect(() => {
@@ -63,6 +66,7 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
     has50Ref.current = false;
     has75Ref.current = false;
     has80Ref.current = false;
+    wasPlayingRef.current = false;
     let destroyed = false;
 
     const savedProgress = getProgress(bookId);
@@ -79,6 +83,18 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
         events: {
           onReady: ({ target }) => {
             if (startAt > 0) target.seekTo(startAt, true);
+
+            if ('mediaSession' in navigator) {
+              navigator.mediaSession.setActionHandler('play',  () => target.playVideo());
+              navigator.mediaSession.setActionHandler('pause', () => target.pauseVideo());
+              navigator.mediaSession.setActionHandler('seekbackward', (d) =>
+                target.seekTo(Math.max(0, target.getCurrentTime() - (d.seekOffset ?? 30)), true));
+              navigator.mediaSession.setActionHandler('seekforward', (d) =>
+                target.seekTo(target.getCurrentTime() + (d.seekOffset ?? 30), true));
+              navigator.mediaSession.setActionHandler('seekto', (d) => {
+                if (d.seekTime != null) target.seekTo(d.seekTime, true);
+              });
+            }
           },
           onStateChange: ({ data, target }) => {
             if (data === 1 /* PLAYING */) {
@@ -86,13 +102,32 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
                 hasStartedRef.current = true;
                 posthog.capture('play_started', { bookId, title: bookTitle });
               }
+
+              wasPlayingRef.current = true;
+
+              if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'playing';
+                navigator.mediaSession.metadata = new MediaMetadata({
+                  title: bookTitle,
+                  artist: bookAuthor,
+                  artwork: imageUrl ? [{ src: imageUrl, sizes: '512x512', type: 'image/jpeg' }] : [],
+                });
+              }
+
               clearInterval(intervalRef.current);
               intervalRef.current = setInterval(() => {
                 const t = target.getCurrentTime();
                 saveProgress({ bookId, bookTitle, bookAuthor, imageUrl, timestamp: t, savedAt: Date.now() });
                 syncToDb(bookId, t);
+
+                const dur = target.getDuration();
+                if ('mediaSession' in navigator && dur > 0) {
+                  try {
+                    navigator.mediaSession.setPositionState({ duration: dur, playbackRate: 1, position: t });
+                  } catch { /* setPositionState may throw if duration is Infinity */ }
+                }
+
                 if (!has25Ref.current || !has50Ref.current || !has75Ref.current || !has80Ref.current) {
-                  const dur = target.getDuration();
                   if (dur > 0) {
                     const pct = t / dur;
                     if (!has25Ref.current && pct >= 0.25) {
@@ -116,6 +151,13 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
               }, SAVE_INTERVAL_MS);
             } else {
               clearInterval(intervalRef.current);
+
+              wasPlayingRef.current = false;
+
+              if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = 'paused';
+              }
+
               const t = target.getCurrentTime();
               if (data === 0 /* ENDED */) {
                 posthog.capture('play_finished', { bookId, title: bookTitle });
@@ -141,13 +183,30 @@ export function YoutubePlayer({ youtubeId, bookId, bookTitle, bookAuthor, imageU
       }
     }
 
+    // Auto-resume when user returns to the browser tab after backgrounding
+    const handleVisibility = () => {
+      if (!document.hidden && wasPlayingRef.current && playerRef.current) {
+        playerRef.current.playVideo();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       destroyed = true;
+      document.removeEventListener('visibilitychange', handleVisibility);
       clearInterval(intervalRef.current);
       const finalTime = playerRef.current?.getCurrentTime() ?? 0;
       if (finalTime > 5) syncToDb(bookId, finalTime);
       try { playerRef.current?.destroy(); } catch { /* ignore */ }
       playerRef.current = null;
+
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = null;
+        navigator.mediaSession.playbackState = 'none';
+        (['play', 'pause', 'seekbackward', 'seekforward', 'seekto'] as MediaSessionAction[]).forEach((a) => {
+          try { navigator.mediaSession.setActionHandler(a, null); } catch { /* ignore */ }
+        });
+      }
     };
   }, [youtubeId, bookId, bookTitle, bookAuthor, imageUrl]);
 
