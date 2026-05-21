@@ -10,6 +10,10 @@ export async function GET(req: NextRequest) {
   const books = await prisma.audiobook.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: 'desc' },
+    include: {
+      category:    { select: { id: true, nameUk: true, nameEn: true } },
+      subcategory: { select: { id: true, nameUk: true, nameEn: true } },
+    },
   });
 
   return NextResponse.json(books);

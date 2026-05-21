@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
 import { BookOpen, ChevronDown, Folder, Search, X } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -20,6 +20,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+interface CategoryInfo {
+  id: string;
+  nameUk: string;
+  nameEn: string;
+}
+
 interface Audiobook {
   id: string;
   title: string;
@@ -29,7 +35,14 @@ interface Audiobook {
   duration: string;
   genre: string;
   language: string;
+  categoryId?: string | null;
+  subcategoryId?: string | null;
+  category?: CategoryInfo | null;
+  subcategory?: CategoryInfo | null;
 }
+
+type SubGroup = { id: string | null; name: string | null; books: Audiobook[] };
+type CatGroup = { id: string | null; name: string; subGroups: SubGroup[] };
 
 function parseDurationHours(duration: string): number {
   return parseDurationSeconds(duration) / 3600;
@@ -37,6 +50,7 @@ function parseDurationHours(duration: string): number {
 
 export default function DashboardPage() {
   const t = useTranslations();
+  const locale = useLocale();
   const { data: session } = useSession();
   const [books, setBooks] = useState<Audiobook[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
@@ -45,7 +59,8 @@ export default function DashboardPage() {
 
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [genreFilter, setGenreFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [subcategoryFilter, setSubcategoryFilter] = useState('');
   const [authorFilter, setAuthorFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
   const [durationFilter, setDurationFilter] = useState('');
@@ -53,6 +68,8 @@ export default function DashboardPage() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const isAdmin = session?.user?.role === 'ADMIN';
+
+  const localeName = (uk: string, en: string) => locale === 'en' && en ? en : uk;
 
   useEffect(() => {
     Promise.all([
@@ -74,14 +91,28 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const genres = useMemo(
-    () => Array.from(new Set(books.map((b) => b.genre).filter(Boolean))).sort(),
-    [books],
-  );
   const authors = useMemo(
     () => Array.from(new Set(books.map((b) => b.author).filter(Boolean))).sort(),
     [books],
   );
+
+  const availableCategories = useMemo(() => {
+    const seen = new Map<string, CategoryInfo>();
+    for (const b of books) {
+      if (b.category && !seen.has(b.category.id)) seen.set(b.category.id, b.category);
+    }
+    return Array.from(seen.values()).sort((a, b) => a.nameUk.localeCompare(b.nameUk));
+  }, [books]);
+
+  const availableSubcategories = useMemo(() => {
+    const seen = new Map<string, CategoryInfo>();
+    for (const b of books) {
+      if (!b.subcategory) continue;
+      if (categoryFilter && b.categoryId !== categoryFilter) continue;
+      if (!seen.has(b.subcategory.id)) seen.set(b.subcategory.id, b.subcategory);
+    }
+    return Array.from(seen.values()).sort((a, b) => a.nameUk.localeCompare(b.nameUk));
+  }, [books, categoryFilter]);
 
   const filteredBooks = useMemo(() => {
     const q = debouncedQuery.toLowerCase().trim();
@@ -91,8 +122,9 @@ export default function DashboardPage() {
         book.title.toLowerCase().includes(q) ||
         book.author.toLowerCase().includes(q) ||
         book.descriptionShort.toLowerCase().includes(q);
-      const matchesGenre = !genreFilter || book.genre === genreFilter;
-      const matchesAuthor = !authorFilter || book.author === authorFilter;
+      const matchesCategory    = !categoryFilter    || book.categoryId    === categoryFilter;
+      const matchesSubcategory = !subcategoryFilter || book.subcategoryId === subcategoryFilter;
+      const matchesAuthor   = !authorFilter   || book.author   === authorFilter;
       const matchesLanguage = !languageFilter || book.language === languageFilter;
       const hours = parseDurationHours(book.duration);
       const matchesDuration =
@@ -100,7 +132,7 @@ export default function DashboardPage() {
         (durationFilter === '<4' && hours < 4) ||
         (durationFilter === '4-8' && hours >= 4 && hours <= 8) ||
         (durationFilter === '>8' && hours > 8);
-      return matchesQuery && matchesGenre && matchesAuthor && matchesLanguage && matchesDuration;
+      return matchesQuery && matchesCategory && matchesSubcategory && matchesAuthor && matchesLanguage && matchesDuration;
     });
 
     if (sortBy === 'alpha') {
@@ -112,36 +144,71 @@ export default function DashboardPage() {
     }
 
     return result;
-  }, [books, debouncedQuery, genreFilter, authorFilter, languageFilter, durationFilter, sortBy]);
+  }, [books, debouncedQuery, categoryFilter, subcategoryFilter, authorFilter, languageFilter, durationFilter, sortBy]);
 
-  // Group filtered books by genre, sorted alphabetically
-  const booksByGenre = useMemo(() => {
-    const groups = new Map<string, Audiobook[]>();
+  const booksByCategory = useMemo<CatGroup[]>(() => {
+    const catMap = new Map<string, CatGroup>();
+
     for (const book of filteredBooks) {
-      const genre = book.genre || 'Other';
-      if (!groups.has(genre)) groups.set(genre, []);
-      groups.get(genre)!.push(book);
-    }
-    return new Map(Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b)));
-  }, [filteredBooks]);
+      const catKey  = book.categoryId ?? '__none__';
+      const catName = book.category
+        ? localeName(book.category.nameUk, book.category.nameEn)
+        : t('no_category');
 
-  // Accordion: tracks which genres are collapsed (default: all expanded)
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const toggleGenre = (genre: string) =>
-    setCollapsed((prev) => {
-      const next = new Set(prev);
-      next.has(genre) ? next.delete(genre) : next.add(genre);
-      return next;
+      if (!catMap.has(catKey)) {
+        catMap.set(catKey, { id: book.categoryId ?? null, name: catName, subGroups: [] });
+      }
+
+      const cat    = catMap.get(catKey)!;
+      const subKey = book.subcategoryId ?? '__nosub__';
+      let subGroup = cat.subGroups.find((s) => (s.id ?? '__nosub__') === subKey);
+
+      if (!subGroup) {
+        subGroup = {
+          id:    book.subcategoryId ?? null,
+          name:  book.subcategory ? localeName(book.subcategory.nameUk, book.subcategory.nameEn) : null,
+          books: [],
+        };
+        cat.subGroups.push(subGroup);
+      }
+      subGroup.books.push(book);
+    }
+
+    const groups = Array.from(catMap.values());
+    groups.sort((a, b) => {
+      if (!a.id) return 1;
+      if (!b.id) return -1;
+      return a.name.localeCompare(b.name);
     });
+    for (const cat of groups) {
+      cat.subGroups.sort((a, b) => {
+        if (!a.id) return 1;
+        if (!b.id) return -1;
+        return (a.name ?? '').localeCompare(b.name ?? '');
+      });
+    }
+    return groups;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredBooks, locale]);
+
+  const [collapsedCats, setCollapsedCats] = useState<Set<string>>(new Set());
+  const [collapsedSubs, setCollapsedSubs] = useState<Set<string>>(new Set());
+
+  const toggleCat = (key: string) =>
+    setCollapsedCats((p) => { const n = new Set(p); n.has(key) ? n.delete(key) : n.add(key); return n; });
+
+  const toggleSub = (key: string) =>
+    setCollapsedSubs((p) => { const n = new Set(p); n.has(key) ? n.delete(key) : n.add(key); return n; });
 
   const isFiltered =
-    debouncedQuery || genreFilter || authorFilter || languageFilter || durationFilter || sortBy !== 'newest';
+    debouncedQuery || categoryFilter || subcategoryFilter || authorFilter || languageFilter || durationFilter || sortBy !== 'newest';
 
   const handleSearch = () => setDebouncedQuery(query);
   const handleClear = () => {
     setQuery('');
     setDebouncedQuery('');
-    setGenreFilter('');
+    setCategoryFilter('');
+    setSubcategoryFilter('');
     setAuthorFilter('');
     setLanguageFilter('');
     setDurationFilter('');
@@ -177,23 +244,47 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex flex-wrap gap-2 items-center">
+            {/* Category filter */}
             <Select
-              value={genreFilter}
-              onValueChange={(val) => setGenreFilter(val === '__all__' ? '' : val)}
+              value={categoryFilter || '__all__'}
+              onValueChange={(v) => {
+                setCategoryFilter(v === '__all__' ? '' : v);
+                setSubcategoryFilter('');
+              }}
             >
-              <SelectTrigger className="w-48" aria-label={t('genre')}>
-                <SelectValue placeholder={t('filter_all_genres')} />
+              <SelectTrigger className="w-48" aria-label={t('category')}>
+                <SelectValue placeholder={t('filter_all_categories')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__all__">{t('filter_all_genres')}</SelectItem>
-                {genres.map((g) => (
-                  <SelectItem key={g} value={g}>{g}</SelectItem>
+                <SelectItem value="__all__">{t('filter_all_categories')}</SelectItem>
+                {availableCategories.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {localeName(c.nameUk, c.nameEn)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Subcategory filter */}
+            <Select
+              value={subcategoryFilter || '__all__'}
+              onValueChange={(v) => setSubcategoryFilter(v === '__all__' ? '' : v)}
+            >
+              <SelectTrigger className="w-52" aria-label={t('subcategory')}>
+                <SelectValue placeholder={t('filter_all_subcategories')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">{t('filter_all_subcategories')}</SelectItem>
+                {availableSubcategories.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {localeName(s.nameUk, s.nameEn)}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
             <Select
-              value={authorFilter}
+              value={authorFilter || '__all__'}
               onValueChange={(val) => setAuthorFilter(val === '__all__' ? '' : val)}
             >
               <SelectTrigger className="w-52" aria-label={t('author')}>
@@ -208,7 +299,7 @@ export default function DashboardPage() {
             </Select>
 
             <Select
-              value={languageFilter}
+              value={languageFilter || '__all__'}
               onValueChange={(val) => setLanguageFilter(val === '__all__' ? '' : val)}
             >
               <SelectTrigger className="w-44" aria-label={t('language')}>
@@ -222,7 +313,7 @@ export default function DashboardPage() {
             </Select>
 
             <Select
-              value={durationFilter}
+              value={durationFilter || '__all__'}
               onValueChange={(val) => setDurationFilter(val === '__all__' ? '' : val)}
             >
               <SelectTrigger className="w-48" aria-label={t('duration')}>
@@ -284,53 +375,118 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {Array.from(booksByGenre.entries()).map(([genre, genreBooks]) => {
-              const isOpen = !collapsed.has(genre);
-              return (
-              <section key={genre} aria-label={genre}>
-                {/* Folder header — clickable accordion trigger */}
-                <button
-                  onClick={() => toggleGenre(genre)}
-                  className="flex w-full items-center gap-3 mb-0 group"
-                  aria-expanded={isOpen}
-                >
-                  <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm group-hover:border-white/20 group-hover:bg-white/8 transition-colors">
-                    <Folder className="h-4 w-4 text-blue-400 fill-blue-400/20" />
-                    <span className="font-semibold text-sm text-white">{genre}</span>
-                    <Badge variant="secondary" className="h-5 px-1.5 text-xs">
-                      {genreBooks.length}
-                    </Badge>
-                    <ChevronDown
-                      className="h-3.5 w-3.5 text-white/40 transition-transform duration-300"
-                      style={{ transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
-                    />
-                  </div>
-                  <div className="flex-1 h-px bg-white/8" />
-                </button>
+            {booksByCategory.map((cat) => {
+              const catKey   = cat.id ?? '__none__';
+              const catOpen  = !collapsedCats.has(catKey);
+              const totalBooks = cat.subGroups.reduce((s, sg) => s + sg.books.length, 0);
 
-                {/* Animated cards container — grid-rows trick for smooth height */}
-                <div
-                  className="grid overflow-hidden"
-                  style={{
-                    gridTemplateRows: isOpen ? '1fr' : '0fr',
-                    transition: 'grid-template-rows 0.35s ease',
-                  }}
-                >
-                  <div className="min-h-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pt-5">
-                      {genreBooks.map((book) => (
-                        <BookGlowCard
-                          key={book.id}
-                          book={book}
-                          progressSeconds={progressMap[book.id]}
-                          totalSeconds={parseDurationSeconds(book.duration)}
-                          isFavorite={favoriteIds.has(book.id)}
-                        />
-                      ))}
+              return (
+                <section key={catKey} aria-label={cat.name}>
+                  {/* Category folder header */}
+                  <button
+                    onClick={() => toggleCat(catKey)}
+                    className="flex w-full items-center gap-3 mb-0 group"
+                    aria-expanded={catOpen}
+                  >
+                    <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 backdrop-blur-sm group-hover:border-white/20 group-hover:bg-white/8 transition-colors">
+                      <Folder className="h-4 w-4 text-amber-400 fill-amber-400/20" />
+                      <span className="font-semibold text-sm text-white">{cat.name}</span>
+                      <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                        {totalBooks}
+                      </Badge>
+                      <ChevronDown
+                        className="h-3.5 w-3.5 text-white/40 transition-transform duration-300"
+                        style={{ transform: catOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                      />
+                    </div>
+                    <div className="flex-1 h-px bg-white/8" />
+                  </button>
+
+                  {/* Animated category container */}
+                  <div
+                    className="grid overflow-hidden"
+                    style={{
+                      gridTemplateRows: catOpen ? '1fr' : '0fr',
+                      transition: 'grid-template-rows 0.35s ease',
+                    }}
+                  >
+                    <div className="min-h-0">
+                      <div className="pl-4 space-y-3 pt-3">
+                        {cat.subGroups.map((sg) => {
+                          const subKey  = `${catKey}_${sg.id ?? '__nosub__'}`;
+                          const subOpen = !collapsedSubs.has(subKey);
+
+                          // No subcategory — render cards directly without inner folder
+                          if (!sg.name) {
+                            return (
+                              <div
+                                key={subKey}
+                                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+                              >
+                                {sg.books.map((book) => (
+                                  <BookGlowCard
+                                    key={book.id}
+                                    book={book}
+                                    progressSeconds={progressMap[book.id]}
+                                    totalSeconds={parseDurationSeconds(book.duration)}
+                                    isFavorite={favoriteIds.has(book.id)}
+                                  />
+                                ))}
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <section key={subKey} aria-label={sg.name}>
+                              {/* Subcategory folder header */}
+                              <button
+                                onClick={() => toggleSub(subKey)}
+                                className="flex w-full items-center gap-3 mb-0 group"
+                                aria-expanded={subOpen}
+                              >
+                                <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1 backdrop-blur-sm group-hover:border-white/20 group-hover:bg-white/8 transition-colors">
+                                  <Folder className="h-3.5 w-3.5 text-blue-400 fill-blue-400/20" />
+                                  <span className="font-medium text-sm text-white/90">{sg.name}</span>
+                                  <Badge variant="secondary" className="h-5 px-1.5 text-xs">
+                                    {sg.books.length}
+                                  </Badge>
+                                  <ChevronDown
+                                    className="h-3 w-3 text-white/40 transition-transform duration-300"
+                                    style={{ transform: subOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+                                  />
+                                </div>
+                                <div className="flex-1 h-px bg-white/8" />
+                              </button>
+
+                              {/* Animated subcategory books */}
+                              <div
+                                className="grid overflow-hidden"
+                                style={{
+                                  gridTemplateRows: subOpen ? '1fr' : '0fr',
+                                  transition: 'grid-template-rows 0.35s ease',
+                                }}
+                              >
+                                <div className="min-h-0">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 pt-4 pb-1">
+                                    {sg.books.map((book) => (
+                                      <BookGlowCard
+                                        key={book.id}
+                                        book={book}
+                                        progressSeconds={progressMap[book.id]}
+                                        totalSeconds={parseDurationSeconds(book.duration)}
+                                        isFavorite={favoriteIds.has(book.id)}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                            </section>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </section>
+                </section>
               );
             })}
           </div>
