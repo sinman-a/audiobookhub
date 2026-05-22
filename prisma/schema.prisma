@@ -20,29 +20,35 @@ model User {
 }
 
 model Audiobook {
-  id               String         @id @default(cuid())
+  id               String           @id @default(cuid())
   title            String
   author           String
   imageUrl         String
-  youtubeId        String
-  descriptionShort String         @db.Text
-  descriptionLong  String         @db.Text
+  youtubeId        String?          @unique
+  descriptionShort String           @db.Text
+  descriptionLong  String           @db.Text
   duration         String
   genre            String
   language         String
   year             Int
-  isPublished      Boolean        @default(false)
-  isFeatured       Boolean        @default(false)
-  relatedIds       String[]       @default([])
+  status           AudiobookStatus  @default(Draft)
+  isFeatured       Boolean          @default(false)
+  relatedIds       String[]         @default([])
   categoryId       String?
   subcategoryId    String?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  sourceUrl        String?
+  channelId        String?
+  rightsHolder     String?
+  permissionStatus PermissionStatus @default(unknown)
+  chapters         Json?
+  lastCheckedAt    DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
   progress         UserProgress[]
   library          UserLibrary[]
   ratings          Rating[]
-  category         Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  subcategory      Subcategory?   @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+  category         Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  subcategory      Subcategory?     @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
 }
 
 model UserProgress {
@@ -121,7 +127,30 @@ model Rating {
   @@unique([userId, audiobookId])
 }
 
+model IngestionLog {
+  id        String   @id @default(cuid())
+  videoId   String
+  bookId    String?
+  action    String
+  message   String?
+  createdAt DateTime @default(now())
+}
+
 enum Role {
   USER
   ADMIN
+}
+
+enum AudiobookStatus {
+  Draft
+  Review
+  Published
+  Unavailable
+}
+
+enum PermissionStatus {
+  unknown
+  allowed
+  pending
+  denied
 }

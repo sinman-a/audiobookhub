@@ -16,10 +16,12 @@ const updateSchema = z.object({
   genre: z.string().optional().or(z.literal('')),
   language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100).optional(),
-  isPublished: z.boolean().optional(),
+  status: z.enum(['Draft', 'Review', 'Published', 'Unavailable']).optional(),
   relatedIds: z.string().array().optional(),
   categoryId: z.string().optional().or(z.literal('')),
   subcategoryId: z.string().optional().or(z.literal('')),
+  rightsHolder: z.string().optional().or(z.literal('')),
+  permissionStatus: z.enum(['unknown', 'allowed', 'pending', 'denied']).optional(),
 });
 
 async function requireAdmin(req: NextRequest) {
@@ -39,21 +41,22 @@ export async function PUT(
     const body = await req.json();
     const data = updateSchema.parse(body);
 
-    // Build update object with only valid Prisma Audiobook fields
     const prismaData: Record<string, unknown> = {};
 
-    if (data.title !== undefined) prismaData.title = data.title;
-    if (data.author !== undefined) prismaData.author = data.author;
+    if (data.title !== undefined)           prismaData.title = data.title;
+    if (data.author !== undefined)          prismaData.author = data.author;
     if (data.descriptionShort !== undefined) prismaData.descriptionShort = data.descriptionShort;
-    if (data.descriptionLong !== undefined) prismaData.descriptionLong = data.descriptionLong;
-    if (data.duration !== undefined) prismaData.duration = data.duration;
-    if (data.genre !== undefined) prismaData.genre = data.genre;
-    if (data.language !== undefined) prismaData.language = data.language;
-    if (data.year !== undefined) prismaData.year = data.year;
-    if (data.isPublished !== undefined) prismaData.isPublished = data.isPublished;
-    if (data.relatedIds !== undefined) prismaData.relatedIds = data.relatedIds;
-    if (data.categoryId !== undefined) prismaData.categoryId = data.categoryId || null;
-    if (data.subcategoryId !== undefined) prismaData.subcategoryId = data.subcategoryId || null;
+    if (data.descriptionLong !== undefined)  prismaData.descriptionLong = data.descriptionLong;
+    if (data.duration !== undefined)        prismaData.duration = data.duration;
+    if (data.genre !== undefined)           prismaData.genre = data.genre;
+    if (data.language !== undefined)        prismaData.language = data.language;
+    if (data.year !== undefined)            prismaData.year = data.year;
+    if (data.status !== undefined)          prismaData.status = data.status;
+    if (data.relatedIds !== undefined)      prismaData.relatedIds = data.relatedIds;
+    if (data.categoryId !== undefined)      prismaData.categoryId = data.categoryId || null;
+    if (data.subcategoryId !== undefined)   prismaData.subcategoryId = data.subcategoryId || null;
+    if (data.rightsHolder !== undefined)    prismaData.rightsHolder = data.rightsHolder || null;
+    if (data.permissionStatus !== undefined) prismaData.permissionStatus = data.permissionStatus;
 
     if (data.youtubeUrl) {
       const youtubeId = extractYoutubeId(data.youtubeUrl);

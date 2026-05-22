@@ -20,14 +20,14 @@ interface Audiobook {
   title: string;
   author: string;
   imageUrl: string;
-  youtubeId: string;
+  youtubeId: string | null;
   descriptionShort: string;
   descriptionLong: string;
   duration: string;
   genre: string;
   language: string;
   year: number;
-  isPublished: boolean;
+  status: string;
 }
 
 interface SimilarBook {
@@ -145,7 +145,7 @@ export function BookDetailClient({ book, isAuthenticated, similarBooks, avgRatin
         <div className="mb-8">
           {isAuthenticated ? (
             <YoutubePlayer
-              youtubeId={book.youtubeId}
+              youtubeId={book.youtubeId ?? ''}
               bookId={book.id}
               bookTitle={book.title}
               bookAuthor={book.author}

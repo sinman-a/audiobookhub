@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const books = await prisma.audiobook.findMany({
-    where: { isPublished: true },
+    where: { status: 'Published' },
     orderBy: { createdAt: 'desc' },
     include: {
       category:    { select: { id: true, nameUk: true, nameEn: true } },

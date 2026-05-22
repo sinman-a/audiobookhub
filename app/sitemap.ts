@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const books = await prisma.audiobook.findMany({
-    where: { isPublished: true },
+    where: { status: 'Published' },
     select: { id: true, updatedAt: true },
   });
 

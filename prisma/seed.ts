@@ -35,7 +35,7 @@ async function main() {
         genre: 'Non-fiction',
         language: 'EN',
         year: 2018,
-        isPublished: true,
+        status: 'Published',
       },
       {
         title: 'Майстер і Маргарита',
@@ -50,7 +50,7 @@ async function main() {
         genre: 'Classic',
         language: 'UA',
         year: 1967,
-        isPublished: true,
+        status: 'Published',
       },
     ],
   });

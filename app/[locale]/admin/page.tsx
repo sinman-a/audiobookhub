@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Upload } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { AdminBookTable } from '@/components/AdminBookTable';
@@ -19,14 +19,16 @@ interface Audiobook {
   title: string;
   author: string;
   imageUrl: string;
-  youtubeId: string;
+  youtubeId: string | null;
   descriptionShort: string;
   descriptionLong: string;
   duration: string;
   genre: string;
   language: string;
   year: number;
-  isPublished: boolean;
+  status: 'Draft' | 'Review' | 'Published' | 'Unavailable';
+  rightsHolder?: string | null;
+  permissionStatus?: string;
   views?: number;
   avgCompletion?: number;
   categoryId?: string;
@@ -43,6 +45,7 @@ type Tab = 'books' | 'genres' | 'categories' | 'subcategories' | 'landing';
 
 export default function AdminPage() {
   const t = useTranslations();
+  const locale = useLocale();
   const { data: session } = useSession();
   const [tab, setTab] = useState<Tab>('books');
   const [books, setBooks] = useState<Audiobook[]>([]);
@@ -94,13 +97,21 @@ export default function AdminPage() {
     <div className="min-h-screen bg-background">
       <Header showAdminLink />
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
           <h1 className="text-3xl font-bold">{t('admin_panel')}</h1>
           {tab === 'books' && (
-            <Button onClick={() => setAddOpen(true)}>
-              <PlusCircle className="h-4 w-4 mr-2" />
-              {t('add_book')}
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" asChild>
+                <a href={`/${locale}/admin/import`}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  {t('admin_tab_import')}
+                </a>
+              </Button>
+              <Button onClick={() => setAddOpen(true)}>
+                <PlusCircle className="h-4 w-4 mr-2" />
+                {t('add_book')}
+              </Button>
+            </div>
           )}
         </div>
 

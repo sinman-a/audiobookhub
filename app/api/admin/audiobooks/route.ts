@@ -17,9 +17,11 @@ const bookSchema = z.object({
   genre: z.string().optional().or(z.literal('')),
   language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100).optional().default(new Date().getFullYear()),
-  isPublished: z.boolean().default(false),
+  status: z.enum(['Draft', 'Review', 'Published', 'Unavailable']).default('Draft'),
   categoryId: z.string().optional().or(z.literal('')),
   subcategoryId: z.string().optional().or(z.literal('')),
+  rightsHolder: z.string().optional().or(z.literal('')),
+  permissionStatus: z.enum(['unknown', 'allowed', 'pending', 'denied']).default('unknown'),
 });
 
 export async function GET(req: NextRequest) {
@@ -75,9 +77,11 @@ export async function POST(req: NextRequest) {
         genre: data.genre || '',
         language: data.language || '',
         year: data.year ?? new Date().getFullYear(),
-        isPublished: data.isPublished,
+        status: data.status,
         categoryId: data.categoryId || null,
         subcategoryId: data.subcategoryId || null,
+        rightsHolder: data.rightsHolder || null,
+        permissionStatus: data.permissionStatus,
       },
     });
 

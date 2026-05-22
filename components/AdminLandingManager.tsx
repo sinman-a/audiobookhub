@@ -16,7 +16,7 @@ interface BookSummary {
   title: string;
   author: string;
   imageUrl?: string;
-  isPublished?: boolean;
+  status?: string;
 }
 
 type LocaleContent = Record<string, string>;

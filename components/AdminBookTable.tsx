@@ -3,27 +3,33 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Pencil, Trash2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AdminBookForm } from './AdminBookForm';
+
+type AudiobookStatus = 'Draft' | 'Review' | 'Published' | 'Unavailable';
 
 interface Audiobook {
   id: string;
   title: string;
   author: string;
   imageUrl: string;
-  youtubeId: string;
+  youtubeId: string | null;
   descriptionShort: string;
   descriptionLong: string;
   duration: string;
   genre: string;
   language: string;
   year: number;
-  isPublished: boolean;
+  status: AudiobookStatus;
+  rightsHolder?: string | null;
+  permissionStatus?: string;
   relatedIds?: string[];
   views?: number;
   avgCompletion?: number;
+  categoryId?: string;
+  subcategoryId?: string;
 }
 
 interface GenreOption {
@@ -38,6 +44,20 @@ interface Props {
   genres?: GenreOption[];
   allBooks?: { id: string; title: string }[];
 }
+
+const STATUS_VARIANT: Record<AudiobookStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  Draft:       'secondary',
+  Review:      'outline',
+  Published:   'default',
+  Unavailable: 'destructive',
+};
+
+const NEXT_STATUS: Record<AudiobookStatus, AudiobookStatus> = {
+  Draft:       'Review',
+  Review:      'Published',
+  Published:   'Draft',
+  Unavailable: 'Draft',
+};
 
 export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }: Props) {
   const t = useTranslations();
@@ -60,16 +80,17 @@ export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }:
     }
   };
 
-  const handleTogglePublish = async (book: Audiobook) => {
+  const handleCycleStatus = async (book: Audiobook) => {
     setTogglingId(book.id);
+    const nextStatus = NEXT_STATUS[book.status] ?? 'Draft';
     try {
       const res = await fetch(`/api/admin/audiobooks/${book.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isPublished: !book.isPublished }),
+        body: JSON.stringify({ status: nextStatus }),
       });
       if (!res.ok) throw new Error();
-      toast.success(book.isPublished ? t('draft') : t('published'));
+      toast.success(t(`status_${nextStatus.toLowerCase()}`));
       onRefresh();
     } catch {
       toast.error('Error');
@@ -102,8 +123,8 @@ export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }:
                   {book.genre && <Badge variant="outline">{book.genre}</Badge>}
                 </td>
                 <td className="p-3">
-                  <Badge variant={book.isPublished ? 'default' : 'secondary'}>
-                    {book.isPublished ? t('published') : t('draft')}
+                  <Badge variant={STATUS_VARIANT[book.status] ?? 'secondary'}>
+                    {t(`status_${book.status.toLowerCase()}`)}
                   </Badge>
                 </td>
                 <td className="p-3 text-muted-foreground hidden lg:table-cell tabular-nums">
@@ -119,16 +140,17 @@ export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }:
                 </td>
                 <td className="p-3">
                   <div className="flex items-center justify-end gap-1">
-                    {/* Quick publish/unpublish toggle */}
+                    {/* Cycle status: Draft → Review → Published → Draft */}
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleTogglePublish(book)}
+                      onClick={() => handleCycleStatus(book)}
                       disabled={togglingId === book.id}
-                      aria-label={book.isPublished ? t('draft') : t('published')}
-                      className={book.isPublished ? 'text-green-500 hover:text-green-600' : 'text-muted-foreground'}
+                      aria-label={t('status')}
+                      className={book.status === 'Published' ? 'text-green-500 hover:text-green-600' : 'text-muted-foreground'}
+                      title={`→ ${NEXT_STATUS[book.status]}`}
                     >
-                      {book.isPublished ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -156,7 +178,6 @@ export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }:
         </table>
       </div>
 
-      {/* key forces remount when editing a different book, so useState re-initializes with correct values */}
       <AdminBookForm
         key={editBook?.id ?? 'new'}
         open={!!editBook}

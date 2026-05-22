@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: { locale: string } 
 export default async function LandingPage({ params }: { params: { locale: string } }) {
   const [books, config] = await Promise.all([
     prisma.audiobook.findMany({
-      where: { isPublished: true, isFeatured: true },
+      where: { status: 'Published', isFeatured: true },
       take: 3,
       select: {
         id: true,

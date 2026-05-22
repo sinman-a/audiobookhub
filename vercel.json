@@ -1,4 +1,10 @@
 {
   "framework": "nextjs",
-  "buildCommand": "prisma generate && next build"
+  "buildCommand": "prisma db execute --file prisma/migrate-ingestion.sql --schema prisma/schema.prisma && prisma generate && next build",
+  "crons": [
+    {
+      "path": "/api/cron/check-youtube",
+      "schedule": "0 1 * * *"
+    }
+  ]
 }

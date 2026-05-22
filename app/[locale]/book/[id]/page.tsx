@@ -6,7 +6,7 @@ import { BookDetailClient } from '@/components/BookDetailClient';
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const book = await prisma.audiobook.findFirst({
-    where: { id: params.id, isPublished: true },
+    where: { id: params.id, status: 'Published' },
     select: { title: true, author: true, descriptionShort: true, imageUrl: true },
   });
   if (!book) return { title: 'AudioBook Hub' };
@@ -29,21 +29,21 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
 
 export default async function BookPage({ params }: { params: { id: string } }) {
   const book = await prisma.audiobook.findFirst({
-    where: { id: params.id, isPublished: true },
+    where: { id: params.id, status: 'Published' },
   });
   if (!book) notFound();
 
   const similarBooksQuery =
     book.relatedIds.length > 0
       ? prisma.audiobook.findMany({
-          where: { id: { in: book.relatedIds }, isPublished: true },
+          where: { id: { in: book.relatedIds }, status: 'Published' },
           select: { id: true, title: true, author: true, imageUrl: true, genre: true, duration: true },
         })
       : prisma.audiobook.findMany({
           where: {
             genre: book.genre,
             language: book.language,
-            isPublished: true,
+            status: 'Published',
             NOT: { id: book.id },
           },
           take: 4,

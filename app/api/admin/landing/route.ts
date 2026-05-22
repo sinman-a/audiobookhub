@@ -12,11 +12,11 @@ export async function GET() {
   const [featuredBooks, allBooks, configs] = await Promise.all([
     prisma.audiobook.findMany({
       where: { isFeatured: true },
-      select: { id: true, title: true, author: true, imageUrl: true, isPublished: true },
+      select: { id: true, title: true, author: true, imageUrl: true, status: true },
       orderBy: { updatedAt: 'desc' },
     }),
     prisma.audiobook.findMany({
-      where: { isPublished: true },
+      where: { status: 'Published' },
       select: { id: true, title: true, author: true },
       orderBy: { title: 'asc' },
     }),

@@ -12,21 +12,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 
 interface Audiobook {
   id: string;
   title: string;
   author: string;
   imageUrl: string;
-  youtubeId: string;
+  youtubeId: string | null;
   descriptionShort: string;
   descriptionLong: string;
   duration: string;
   genre: string;
   language: string;
   year: number;
-  isPublished: boolean;
+  status: 'Draft' | 'Review' | 'Published' | 'Unavailable';
+  rightsHolder?: string | null;
+  permissionStatus?: string;
   relatedIds?: string[];
   categoryId?: string;
   subcategoryId?: string;
@@ -71,7 +72,9 @@ const formSchema = z.object({
   genre: z.string().optional().or(z.literal('')),
   language: z.string().optional().or(z.literal('')),
   year: z.number().int().min(1900).max(2100),
-  isPublished: z.boolean(),
+  status: z.enum(['Draft', 'Review', 'Published', 'Unavailable']),
+  rightsHolder: z.string().optional().or(z.literal('')),
+  permissionStatus: z.enum(['unknown', 'allowed', 'pending', 'denied']),
   relatedIds: z.string().array().default([]),
   categoryId: z.string().optional().or(z.literal('')),
   subcategoryId: z.string().optional().or(z.literal('')),
@@ -88,14 +91,16 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
     title: book?.title ?? '',
     author: book?.author ?? '',
     imageUrl: book?.imageUrl ?? '',
-    youtubeUrl: book ? `https://www.youtube.com/watch?v=${book.youtubeId}` : '',
+    youtubeUrl: book?.youtubeId ? `https://www.youtube.com/watch?v=${book.youtubeId}` : '',
     descriptionShort: book?.descriptionShort ?? '',
     descriptionLong: book?.descriptionLong ?? '',
     duration: book?.duration ?? '',
     genre: book?.genre ?? '',
     language: book?.language ?? '',
     year: book?.year ?? new Date().getFullYear(),
-    isPublished: book?.isPublished ?? false,
+    status: book?.status ?? 'Draft',
+    rightsHolder: book?.rightsHolder ?? '',
+    permissionStatus: (book?.permissionStatus as FormData['permissionStatus']) ?? 'unknown',
     relatedIds: book?.relatedIds ?? [],
     categoryId: book?.categoryId ?? '',
     subcategoryId: book?.subcategoryId ?? '',
@@ -252,7 +257,7 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
             </Select>
           </Field>
 
-          {/* Subcategory — filtered by selected category */}
+          {/* Subcategory */}
           <Field label={t('subcategory')} error={errors.subcategoryId}>
             <Select
               value={form.subcategoryId || '__none__'}
@@ -314,7 +319,48 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
             />
           </Field>
 
-          {/* Related books for "Similar" block */}
+          {/* Rights holder */}
+          <Field label={t('rights_holder')} error={errors.rightsHolder}>
+            <Input
+              value={form.rightsHolder ?? ''}
+              onChange={(e) => set('rightsHolder', e.target.value)}
+              placeholder={t('rights_holder_placeholder')}
+            />
+          </Field>
+
+          {/* Permission status */}
+          <Field label={t('permission_status')} error={errors.permissionStatus}>
+            <Select
+              value={form.permissionStatus}
+              onValueChange={(v) => set('permissionStatus', v as FormData['permissionStatus'])}
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="unknown">{t('permission_unknown')}</SelectItem>
+                <SelectItem value="pending">{t('permission_pending')}</SelectItem>
+                <SelectItem value="allowed">{t('permission_allowed')}</SelectItem>
+                <SelectItem value="denied">{t('permission_denied')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+
+          {/* Status */}
+          <Field label={t('status')} error={errors.status} className="sm:col-span-2">
+            <Select
+              value={form.status}
+              onValueChange={(v) => set('status', v as FormData['status'])}
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Draft">{t('status_draft')}</SelectItem>
+                <SelectItem value="Review">{t('status_review')}</SelectItem>
+                <SelectItem value="Published">{t('status_published')}</SelectItem>
+                <SelectItem value="Unavailable">{t('status_unavailable')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+
+          {/* Related books */}
           {allBooks.length > 0 && (
             <div className="sm:col-span-2 space-y-2">
               <Label>{t('related_books')}</Label>
@@ -348,23 +394,6 @@ export function AdminBookForm({ open, onClose, onSuccess, book, genres = [], all
               </div>
             </div>
           )}
-
-          {/* Publish toggle */}
-          <div className="sm:col-span-2 flex items-center justify-between rounded-lg border p-3 bg-muted/30">
-            <div>
-              <p className="font-medium text-sm">{form.isPublished ? t('published') : t('draft')}</p>
-              <p className="text-xs text-muted-foreground">
-                {form.isPublished
-                  ? 'Книга видима у каталозі'
-                  : 'Книга прихована від користувачів'}
-              </p>
-            </div>
-            <Switch
-              checked={form.isPublished}
-              onCheckedChange={(v) => set('isPublished', v)}
-              id="isPublished"
-            />
-          </div>
         </div>
 
         <DialogFooter className="gap-2">
