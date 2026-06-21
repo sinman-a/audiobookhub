@@ -31,7 +31,13 @@ export async function GET(req: NextRequest) {
   }
 
   const [books, progressStats] = await Promise.all([
-    prisma.audiobook.findMany({ orderBy: { createdAt: 'desc' } }),
+    prisma.audiobook.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        category:    { select: { nameUk: true, nameEn: true } },
+        subcategory: { select: { nameUk: true, nameEn: true } },
+      },
+    }),
     prisma.userProgress.groupBy({
       by: ['audiobookId'],
       _count: { audiobookId: true },

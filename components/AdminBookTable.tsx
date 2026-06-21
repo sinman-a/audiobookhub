@@ -30,6 +30,8 @@ interface Audiobook {
   avgCompletion?: number;
   categoryId?: string;
   subcategoryId?: string;
+  category?:    { nameUk: string; nameEn: string } | null;
+  subcategory?: { nameUk: string; nameEn: string } | null;
 }
 
 interface GenreOption {
@@ -108,6 +110,8 @@ export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }:
               <th className="text-left p-3 font-medium">{t('title')}</th>
               <th className="text-left p-3 font-medium hidden md:table-cell">{t('author')}</th>
               <th className="text-left p-3 font-medium hidden sm:table-cell">{t('genre')}</th>
+              <th className="text-left p-3 font-medium hidden md:table-cell">{t('category')}</th>
+              <th className="text-left p-3 font-medium hidden lg:table-cell">{t('subcategory')}</th>
               <th className="text-left p-3 font-medium">{t('status')}</th>
               <th className="text-left p-3 font-medium hidden lg:table-cell">{t('views')}</th>
               <th className="text-left p-3 font-medium hidden lg:table-cell">{t('avg_completion')}</th>
@@ -121,6 +125,16 @@ export function AdminBookTable({ books, onRefresh, genres = [], allBooks = [] }:
                 <td className="p-3 text-muted-foreground hidden md:table-cell">{book.author}</td>
                 <td className="p-3 hidden sm:table-cell">
                   {book.genre && <Badge variant="outline">{book.genre}</Badge>}
+                </td>
+                <td className="p-3 hidden md:table-cell text-sm">
+                  {book.category
+                    ? book.category.nameUk
+                    : <span className="text-muted-foreground/50">—</span>}
+                </td>
+                <td className="p-3 hidden lg:table-cell text-sm">
+                  {book.subcategory
+                    ? book.subcategory.nameUk
+                    : <span className="text-muted-foreground/50">—</span>}
                 </td>
                 <td className="p-3">
                   <Badge variant={STATUS_VARIANT[book.status] ?? 'secondary'}>

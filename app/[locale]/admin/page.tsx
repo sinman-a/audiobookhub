@@ -33,6 +33,8 @@ interface Audiobook {
   avgCompletion?: number;
   categoryId?: string;
   subcategoryId?: string;
+  category?:    { nameUk: string; nameEn: string } | null;
+  subcategory?: { nameUk: string; nameEn: string } | null;
 }
 
 interface GenreOption {
